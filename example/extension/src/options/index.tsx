@@ -51,6 +51,7 @@ const OptionsPage = () => {
     { value: "anthropic", label: "Claude (default)" },
     { value: "openai", label: "OpenAI" },
     { value: "openrouter", label: "OpenRouter" },
+    { value: "azure", label: "Azure" },
   ];
 
   const modelOptions = {
@@ -74,13 +75,18 @@ const OptionsPage = () => {
       { value: "openai/gpt-4o", label: "gpt-4o" },
       { value: "google/gemini-2.5-flash-preview-05-20", label: "gemini-2.5-flash-preview-05-20" },
     ],
+    azure: [
+      { value: "frgpt4o", label: "gpt-4o" },
+      { value: "gpt-4o-mini", label: "gpt-4o-mini" },
+    ]
   };
 
   const handleLLMChange = (value: string) => {
     const baseURLMap = {
       openai: "https://api.openai.com/v1",
       anthropic: "https://api.anthropic.com/v1",
-      openrouter: "https://openrouter.ai/api/v1"
+      openrouter: "https://openrouter.ai/api/v1",
+      azure: "https://frwestusgpt.openai.azure.com"
     };
     const newConfig = {
       llm: value,

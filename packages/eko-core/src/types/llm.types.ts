@@ -17,6 +17,7 @@ export type LLMprovider =
   | "google"
   | "aws"
   | "openrouter"
+  | "azure"
   | ProviderV1;
 
 export type LLMConfig = {

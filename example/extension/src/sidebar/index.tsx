@@ -14,7 +14,7 @@ const AppRun = () => {
   const [streamLog, setStreamLog] = useState<LogMessage | null>();
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [prompt, setPrompt] = useState(
-    'Open Twitter, search for "Fellou AI" and follow'
+    'Use Google, search for "FanRuan"'
   );
 
   useEffect(() => {
@@ -100,6 +100,7 @@ const AppRun = () => {
           textAlign: "center",
           marginTop: "4px",
         }}
+        className="flex gap-x-[8px]"
       >
         <Input.TextArea
           ref={textAreaRef}
@@ -109,6 +110,17 @@ const AppRun = () => {
           placeholder="Your workflow"
           onChange={(e) => setPrompt(e.target.value)}
         />
+        <Button
+          onClick={() => {
+
+          }}
+          style={{
+            marginTop: "8px",
+            // background: running ? "#6666" : "#1677ff",
+          }}
+        >
+          Generate
+        </Button>
         <Button
           type="primary"
           onClick={handleClick}

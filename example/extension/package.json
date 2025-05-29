@@ -3,7 +3,9 @@
   "version": "2.0.0",
   "description": "eko browser extension",
   "scripts": {
-    "build": "webpack --config webpack.js"
+    "build": "webpack --config webpack.js",
+    "dev": "NODE_ENV=development webpack --config webpack.js --watch",
+    "watch": "NODE_ENV=development webpack --config webpack.js --watch"
   },
   "author": "FellouAI",
   "license": "MIT",
@@ -12,20 +14,26 @@
     "eko"
   ],
   "dependencies": {
+    "@eko-ai/eko": "file:../../packages/eko-core",
+    "@eko-ai/eko-extension": "file:../../packages/eko-extension",
     "antd": "^5.22.4",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "@eko-ai/eko": "file:../../packages/eko-core",
-    "@eko-ai/eko-extension": "file:../../packages/eko-extension"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/chrome": "0.0.158",
     "@types/react": "^18.0.29",
     "@types/react-dom": "^18.0.11",
+    "autoprefixer": "^10.4.21",
     "copy-webpack-plugin": "^9.0.1",
+    "css-loader": "^7.1.2",
     "glob": "^7.1.6",
+    "postcss": "^8.5.3",
+    "postcss-loader": "^8.1.1",
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2 ",
+    "style-loader": "^4.0.0",
+    "tailwindcss": "^4.1.7",
     "ts-loader": "^8.0.0",
     "typescript": "^5.0.4",
     "webpack": "^5.94.0",

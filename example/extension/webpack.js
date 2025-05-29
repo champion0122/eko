@@ -2,8 +2,11 @@ const path = require("path");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const srcDir = path.join(__dirname, "src");
 
+const isDev = process.env.NODE_ENV === 'development';
+
 module.exports = {
-  mode: "production",
+  mode: isDev ? "development" : "production",
+  devtool: isDev ? "source-map" : false,
   entry: {
     sidebar: path.join(srcDir, "sidebar/index.tsx"),
     options: path.join(srcDir, "options/index.tsx"),
@@ -13,6 +16,7 @@ module.exports = {
   output: {
     path: path.join(__dirname, "dist/js"),
     filename: "[name].js",
+    sourceMapFilename: "[name].js.map"
   },
   optimization: {
     splitChunks: {
@@ -26,13 +30,29 @@ module.exports = {
     rules: [
       {
         test: /\.tsx?$/,
-        use: "ts-loader",
+        use: {
+          loader: "ts-loader",
+          options: {
+            transpileOnly: isDev,
+            compilerOptions: {
+              sourceMap: true
+            }
+          }
+        },
         exclude: /node_modules/,
+      },
+      {
+        test: /\.css$/,
+        use: [
+          'style-loader',
+          'css-loader',
+          'postcss-loader',
+        ],
       },
     ],
   },
   resolve: {
-    extensions: [".ts", ".tsx", ".js"],
+    extensions: [".ts", ".tsx", ".js", ".css"],
   },
   plugins: [
     new CopyWebpackPlugin({

@@ -6,6 +6,7 @@ import {
 import Log from "../common/log";
 import config from "../config";
 import { createOpenAI } from "@ai-sdk/openai";
+import { createAzure } from "@ai-sdk/azure"
 import { call_timeout } from "../common/utils";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
@@ -208,6 +209,12 @@ export class RetryLanguageModel {
       return createOpenRouter({
         apiKey: llm.apiKey,
         baseURL: llm.config?.baseURL,
+      }).languageModel(llm.model);
+    } else if(llm.provider == "azure") {
+      return createAzure({
+        apiKey: llm.apiKey,
+        baseURL: llm.config?.baseURL,
+        apiVersion: "2025-01-01-preview",
       }).languageModel(llm.model);
     } else {
       return llm.provider.languageModel(llm.model);
