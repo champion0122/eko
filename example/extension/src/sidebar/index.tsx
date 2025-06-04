@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import React, { useState, useRef, useEffect } from "react";
 import { Button, Input } from "antd";
+import '../styles/globals.css';
 
 interface LogMessage {
   time: string;
@@ -93,6 +94,7 @@ const AppRun = () => {
       style={{
         minHeight: "80px",
       }}
+      className='p-[16px]'
     >
       <div>Prompt:</div>
       <div
@@ -100,7 +102,6 @@ const AppRun = () => {
           textAlign: "center",
           marginTop: "4px",
         }}
-        className="flex gap-x-[8px]"
       >
         <Input.TextArea
           ref={textAreaRef}
@@ -110,27 +111,31 @@ const AppRun = () => {
           placeholder="Your workflow"
           onChange={(e) => setPrompt(e.target.value)}
         />
-        <Button
-          onClick={() => {
+        <div
+          className="flex gap-x-[8px]"
+        >
+          <Button
+            onClick={() => {
 
-          }}
-          style={{
-            marginTop: "8px",
-            // background: running ? "#6666" : "#1677ff",
-          }}
-        >
-          Generate
-        </Button>
-        <Button
-          type="primary"
-          onClick={handleClick}
-          style={{
-            marginTop: "8px",
-            background: running ? "#6666" : "#1677ff",
-          }}
-        >
-          {running ? "Running..." : "Run"}
-        </Button>
+            }}
+            style={{
+              marginTop: "8px",
+              // background: running ? "#6666" : "#1677ff",
+            }}
+          >
+            Generate
+          </Button>
+          <Button
+            type="primary"
+            onClick={handleClick}
+            style={{
+              marginTop: "8px",
+              background: running ? "#6666" : "#1677ff",
+            }}
+          >
+            {running ? "Running..." : "Run"}
+          </Button>
+        </div>
       </div>
       {logs.length > 0 && (
         <div

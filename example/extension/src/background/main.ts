@@ -1,6 +1,7 @@
 import { Eko, LLMs, StreamCallbackMessage } from "@eko-ai/eko";
 import { StreamCallback, HumanCallback } from "@eko-ai/eko/types";
 import { BrowserAgent } from "@eko-ai/eko-extension";
+import { CustomBrowserAgent } from "./customAgent";
 
 export async function getLLMConfig(name: string = "llmConfig"): Promise<any> {
   let result = await chrome.storage.sync.get([name]);
@@ -50,7 +51,10 @@ export async function main(prompt: string): Promise<Eko> {
     },
   };
 
-  let agents = [new BrowserAgent()];
+  let agents = [
+    // new BrowserAgent(), 
+    new CustomBrowserAgent()
+  ];
   let eko = new Eko({ llms, agents, callback });
   eko
     .run(prompt)
