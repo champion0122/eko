@@ -86,7 +86,7 @@ const OptionsPage = () => {
       openai: "https://api.openai.com/v1",
       anthropic: "https://api.anthropic.com/v1",
       openrouter: "https://openrouter.ai/api/v1",
-      azure: "https://frwestusgpt.openai.azure.com"
+      azure: "https://frwestusgpt.openai.azure.com/openai/deployments"
     };
     const newConfig = {
       llm: value,
@@ -101,7 +101,7 @@ const OptionsPage = () => {
   };
 
   return (
-    <div className="p-6 max-w-xl mx-auto">
+    <div className="max-w-xl p-6 mx-auto">
       <Card title="Model Config" className="shadow-md">
         <Form form={form} layout="vertical" initialValues={config}>
           <Form.Item

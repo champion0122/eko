@@ -52,8 +52,8 @@ export async function main(prompt: string): Promise<Eko> {
   };
 
   let agents = [
-    // new BrowserAgent(), 
-    new CustomBrowserAgent()
+    new BrowserAgent(), 
+    // new CustomBrowserAgent()
   ];
   let eko = new Eko({ llms, agents, callback });
   eko

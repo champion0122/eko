@@ -381,16 +381,25 @@ export function run_build_dom_tree() {
         'combobox',
       ]);
 
+      const interactiveElementClassName = [
+        'tree-node',
+        'fr-trigger-editor',
+        'fr-trigger-btn-up',
+        'bi-basic-button'
+      ];
+
       const tagName = element.tagName.toLowerCase();
       const role = element.getAttribute('role');
       const ariaRole = element.getAttribute('aria-role');
       const tabIndex = element.getAttribute('tabindex');
+      const className = element.getAttribute('class') ?? '';
 
       // Basic role/attribute checks
       const hasInteractiveRole =
         interactiveElements.has(tagName) ||
         interactiveRoles.has(role) ||
         interactiveRoles.has(ariaRole) ||
+        interactiveElementClassName.some(_className => className.includes(_className)) ||
         (tabIndex !== null && tabIndex !== '-1') ||
         element.getAttribute('data-action') === 'a-dropdown-select' ||
         element.getAttribute('data-action') === 'a-dropdown-button';

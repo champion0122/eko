@@ -1,4 +1,4 @@
-import { Agent, AgentContext } from "@eko-ai/eko";
+import { AgentContext, BaseBrowserAgent } from "@eko-ai/eko";
 import { ToolResult } from "@eko-ai/eko/types";
 
 const FINEBI_BROWSER_AGENT_DESCRIPTION = `You are a specialized browser operation agent for FineBI projects, focusing on precise element location.
@@ -12,7 +12,7 @@ const FINEBI_BROWSER_AGENT_DESCRIPTION = `You are a specialized browser operatio
   - When dealing with tree-like navigation, ensure proper expansion of parent nodes
   - Handle dynamic loading of content in virtual lists`;
 
-class CustomBrowserAgent extends Agent {
+class CustomBrowserAgent extends BaseBrowserAgent {
   protected async screenshot(
     agentContext: AgentContext
   ): Promise<{ imageBase64: string; imageType: "image/jpeg" | "image/png" }> {
