@@ -38,9 +38,8 @@ const HUMAN_PROMPT = `
 * HUMAN INTERACT
 During the task execution process, you can use the \`${human_interact}\` tool to interact with humans, please call it in the following situations:
 - When performing dangerous operations such as deleting files, confirmation from humans is required.
-- When encountering obstacles while visiting a website, such as requiring user login or captcha, you need to request for manual assistance.
-- When requesting login, please only call the function when a login dialog box is clearly displayed.
-- Try to minimize the use of \`${human_interact}\` tool.
+- When encountering obstacles while accessing websites, such as requiring user login, captcha verification, QR code scanning, or human verification, you need to request manual assistance.
+- Please do not use the \`${human_interact}\` tool frequently.
 `;
 
 const VARIABLE_PROMPT = `
@@ -61,7 +60,7 @@ repetitive tasks, when executing to the forEach node, require the use of the \`$
 
 const WATCH_NODE = `
     <!-- monitor task node, the loop attribute specifies whether to listen in a loop or listen once -->
-    <watch event="dom or file" loop="true">
+    <watch event="dom" loop="true">
       <description>Monitor task description</description>
       <trigger>
         <node>Trigger step node</node>
@@ -71,7 +70,7 @@ const WATCH_NODE = `
 
 const WATCH_PROMPT = `
 * watch node
-monitor changes in webpage DOM or file content, when executing to the watch node, require the use of the \`${watch_trigger}\` tool.
+monitor changes in webpage DOM elements, when executing to the watch node, require the use of the \`${watch_trigger}\` tool.
 `;
 
 export function getAgentSystemPrompt(

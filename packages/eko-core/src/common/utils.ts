@@ -100,6 +100,7 @@ export function mergeTools<T extends Tool | LanguageModelV1FunctionTool>(tools1:
     map[tool.name] = tool;
     return map;
   }, {} as Record<string, T>);
+  let names = [];
   for (let i = 0; i < tools1.length; i++) {
     let tool1 = tools1[i];
     let tool2 = toolMap2[tool1.name];
@@ -112,8 +113,9 @@ export function mergeTools<T extends Tool | LanguageModelV1FunctionTool>(tools1:
   }
   for (let i = 0; i < tools2.length; i++) {
     let tool2 = tools2[i];
-    if (toolMap2[tool2.name]) {
+    if (toolMap2[tool2.name] && names.indexOf(tool2.name) === -1) {
       tools.push(tool2);
+      names.push(tool2.name);
     }
   }
   return tools;
@@ -159,6 +161,9 @@ export function sub(
 }
 
 export function fixXmlTag(code: string) {
+  if (code.indexOf('&') > -1) {
+    code = code.replace(/&(?![a-zA-Z0-9#]+;)/g, '&amp;');
+  }
   function fixDoubleChar(code: string) {
     const stack: string[] = [];
     for (let i = 0; i < code.length; i++) {

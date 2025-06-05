@@ -5,17 +5,19 @@ type GlobalConfig = {
   maxTokens: number;
   compressThreshold: number; // Dialogue context compression threshold (message count)
   largeTextLength: number;
+  fileTextMaxLength: number;
   maxDialogueImgFileNum: number;
 }
 
 const config: GlobalConfig = {
   name: "Eko",
   platform: "mac",
-  maxReactNum: 200,
+  maxReactNum: 500,
   maxTokens: 16000,
   compressThreshold: 80,
   largeTextLength: 5000,
-  maxDialogueImgFileNum: 2,
+  fileTextMaxLength: 20000,
+  maxDialogueImgFileNum: 1,
 };
 
 export default config;
