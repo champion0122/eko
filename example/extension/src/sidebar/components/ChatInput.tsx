@@ -35,7 +35,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ value, onChange, onSend, d
     <div className="w-full max-w-[445px] mx-auto transition-all bg-white rounded-[12px] border-[1px] border-[#DCE4FA] focus:border-[#8C8CFF] shadow-[0_6px_20px_0_rgba(171,181,206,0.2)] p-[8px]">
       {/* 输入区 */}
       <textarea
-          className="w-full resize-none text-base outline-none bg-transparent text-[#0A1833] placeholder:text-[#A0AEC0] shadow-inner min-h-[44px] max-h-[120px] font-['PingFang SC','Inter','sans-serif']"
+          className="w-full resize-none text-base outline-none bg-transparent text-[#0A1833] placeholder:text-[#A0AEC0] min-h-[44px] max-h-[120px] font-['PingFang SC','Inter','sans-serif']"
           rows={1}
           value={value}
           onChange={e => onChange(e.target.value)}
