@@ -1,6 +1,4 @@
-import { PlusOutlined, SendOutlined } from "@ant-design/icons";
-import { Avatar, Button, Input } from "antd";
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react";
 import { Welcome } from "./Welcome";
 import { ChatInput } from "./components/ChatInput";
 import { Message, MessageList } from "./components/MessageList";
@@ -25,9 +23,6 @@ export const ChatPage = () => {
             if (result.running !== undefined) {
                 setRunning(result.running);
             }
-            // if (result.prompt !== undefined) {
-            //   setPrompt(result.prompt);
-            // }
         });
 
         const messageListener = (message: any) => {
@@ -44,15 +39,6 @@ export const ChatPage = () => {
                     log: message.log,
                     level: message.level || "info",
                 };
-                // setMessages((prev) => {
-                //     const lastMsg = prev[prev.length - 1];
-                //     if (lastMsg.role === "assistant") {
-                //         lastMsg.content += message.log;
-                //     } else {
-                //         prev.push({ role: "assistant", content: message.log });
-                //     }
-                //     return prev;
-                // });
                 if (message.stream || !message.log) {
                     setStreamLog(message.log);
                 } else {
@@ -85,7 +71,7 @@ export const ChatPage = () => {
     };
 
     return (
-        <div className="flex flex-col h-screen bg-[#f7f8fa]">
+        <div className="relative w-full h-full min-h-[1024px] bg-gradient-to-b from-[#EEEDFE] to-[#E7F0FE] rounded-[20px] shadow-lg overflow-hidden flex flex-col items-center">
             {messages.length === 0 && <Welcome onSend={handleSend} />}
             {/* 消息列表 */}
             <MessageList messages={messages} running={running} streamLog={streamLog} />

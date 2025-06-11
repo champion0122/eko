@@ -30,7 +30,7 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
     }, [messages]);
 
     return (
-        <div className="flex-1 overflow-y-auto px-4 py-2 bg-[#f7f8fa]">
+        <div className="flex-1 w-full px-4 py-2 overflow-y-auto bg-transparent">
             {messages.map((msg, idx) => (
                 <div
                     key={idx}
@@ -40,8 +40,8 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
                         <div
                             className={`max-w-[80%] rounded-2xl px-4 py-3 text-base whitespace-pre-line
               ${msg.role === "user"
-                                    ? "bg-[#e6f0ff] text-[#222] rounded-br-md"
-                                    : "bg-white text-[#222] rounded-bl-md border border-[#ececec]"}`
+                                    ? "bg-[#E6E8FA] text-[#222] rounded-br-md"
+                                    : "bg-transparent text-[#222] rounded-bl-md border border-[#ececec]"}`
                             }
                         >
                             {msg.content}

@@ -1,40 +1,84 @@
-import { Dropdown, Button, MenuProps } from "antd";
 import React from "react";
-import { FC } from "react";
 
-export const Welcome: FC<{onSend: (prompt: string) => void}> = ({onSend}) => {
-    const items: MenuProps['items'] = [
-        {
-            key: '2',
-            label: (
-              <div>
-                  会议地点选择无锡，选择完了就完成任务了
-              </div>
-            ),
-            onClick: () => {
-              onSend("会议地点选择无锡，选择完了就完成任务了");
-            }
-          },
-        {
-          key: '1',
-          label: (
-            <div className="whitespace-break-spaces">
-                demo 01: 预约会议地点为无锡，日期为2025-06-10，会议时间为09:00:00，参会人数为0，所需设备为空的会议室一个
-            </div>
-          ),
-          onClick: () => {
-            onSend("预约会议地点为无锡，日期为2025-06-10，会议时间为09:00:00，参会人数为0，所需设备为空的会议室一个");
-          }
-        },
-      ];
-      
-    return <div className="flex flex-col pt-[400px] h-full">
-        <div className="flex justify-between mb-[24px] gap-[12px]">
-            <img src="https://src.fanruan.com/website/finereport/logo-fanruan.png" alt="logo"/>
-            <div className="text-[18px] font-bold"><span className="mb-[12px]">晚上好，</span><br/><span>我是你的Fine同事</span></div>
-        </div>
-        <Dropdown menu={{items}} placement="bottom">
-            <Button className="rounded-[5px]">预约会议室</Button>
-        </Dropdown>
-    </div>;
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 11) return "早上好";
+  if (hour < 13) return "中午好";
+  if (hour < 18) return "下午好";
+  return "晚上好";
 }
+
+export const Welcome: React.FC<{ onSend: (prompt: string) => void }> = ({ onSend }) => {
+  const greeting = getGreeting();
+
+  return (
+    <div className="flex flex-col items-center w-full">
+      {/* 顶部大标题 */}
+      <div className="leading-[60px] text-center text-[32px] font-bold tracking-wider mt-[145px]">
+        <div className="font-bold text-left text-[32px] leading-[60px]">{greeting}</div>
+        <span className="text-[#0A1833]">我是你的</span>
+        <span
+          className="bg-gradient-to-r from-[#4CA6FF] to-[#6D6AFF] bg-clip-text text-transparent mx-1"
+          style={{ fontFamily: 'inherit' }}
+        >
+          FINE
+        </span>
+        <span
+          className="bg-gradient-to-r from-[#6D6AFF] to-[#A259D9] bg-clip-text text-transparent"
+          style={{ fontFamily: 'inherit' }}
+        >
+          同事
+        </span>
+      </div>
+      {/* banner图片 */}
+      <img
+        src="/assets/banner.png"
+        alt="banner"
+        className="w-[395px] h-[56px] object-cover mt-[32px] rounded-[12px] shadow"
+      />
+      {/* 能帮你做什么 */}
+      <div className="m-[20px] mt-[60px] w-[calc(100%-40px)] rounded-[20px] bg-gradient-to-b flex flex-col items-start from-[#E7E4FF] to-[#E8EDFF]">
+        {/* 三个功能按钮区 */}
+        <div className="w-full flex flex-col gap-[12px] py-[20px] px-[18px]">
+          <div
+          className="bg-[#FFFFFF] leading-[24px] rounded-[6px] px-4 py-2 text-[#0A1833] text-[12px] font-normal gap-2 hover:bg-[rgba(171,181,206,0.32)] transition"
+          onClick={() => { }}
+          >
+            <span className="text-[#081633] text-[16px] font-bold">📖 生成报告</span>
+            <br/>
+            <span className="text-[#08163373]">
+              根据近期纳斯达克的变化，制作报告
+            </span>
+          </div>
+          <div
+            className=" bg-[#FFFFFF] rounded-[6px] px-4 py-2 text-[#0A1833] text-[12px] font-normal gap-2 hover:bg-[rgba(171,181,206,0.32)] transition"
+            onClick={() => { }}
+          >
+            <span className="text-[#081633] text-[16px] font-bold">💡 生成报告</span>
+            <br/>
+            <span className="text-[#08163373]">
+              线索转化和人力资源的人员分布，生成分析报告
+            </span>
+          </div>
+          <div
+            className=" bg-[#FFFFFF] rounded-[6px] px-4 py-2 text-[#0A1833] text-[12px] font-normal gap-2 hover:bg-[rgba(171,181,206,0.32)] transition"
+            onClick={() => { }}
+          >
+            <span className="text-[#081633] text-[16px] font-bold">🍃 生成报告</span>
+            <br/>
+            <span className="text-[#08163373]">
+              线索转化和人力资源的人员分布，生成分析报告
+            </span>
+          </div>
+        </div>
+      </div>
+      {/* 底部快捷icon区 */}
+      {/* <div className="absolute left-0 flex justify-between w-full px-10 bottom-8">
+        <img src="/assets/icon4.svg" alt="icon4" className="w-6 h-6 opacity-70" />
+        <img src="/assets/icon5.svg" alt="icon5" className="w-6 h-6 opacity-70" />
+        <img src="/assets/icon6.svg" alt="icon6" className="w-6 h-6 opacity-70" />
+        <img src="/assets/icon7.svg" alt="icon7" className="w-8 h-8 opacity-70" />
+      </div> */}
+    </div>
+  );
+};
