@@ -8,11 +8,11 @@ const OptionsPage = () => {
   const [form] = Form.useForm();
 
   const [config, setConfig] = useState({
-    llm: "anthropic",
-    apiKey: "",
-    modelName: "claude-3-7-sonnet-20250219",
+    llm: "azure",
+    apiKey: "8e5a121e0de44a1bb7ad362820887135",
+    modelName: "frgpt4o",
     options: {
-      baseURL: "https://api.anthropic.com/v1",
+      baseURL: "https://frwestusgpt.openai.azure.com/openai/deployments",
     },
   });
 

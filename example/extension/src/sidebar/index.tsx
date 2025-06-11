@@ -1,7 +1,9 @@
 import { createRoot } from "react-dom/client";
 import React, { useState, useRef, useEffect } from "react";
-import { Button, Input } from "antd";
+import { Button, Input, message } from "antd";
 import '../styles/globals.css';
+import { ChatPage } from "./ChatPage";
+import "./index.css";
 
 interface LogMessage {
   time: string;
@@ -78,6 +80,10 @@ const AppRun = () => {
     chrome.runtime.sendMessage({ type: "run", prompt: prompt.trim() });
   };
 
+  const handleStepGenerate = () => {
+    chrome.runtime.sendMessage({ type: "step", prompt: prompt.trim() });
+  }
+
   const getLogStyle = (level: string) => {
     switch (level) {
       case "error":
@@ -115,9 +121,7 @@ const AppRun = () => {
           className="flex gap-x-[8px]"
         >
           <Button
-            onClick={() => {
-
-            }}
+            onClick={handleStepGenerate}
             style={{
               marginTop: "8px",
               // background: running ? "#6666" : "#1677ff",
@@ -189,6 +193,7 @@ const root = createRoot(document.getElementById("root")!);
 
 root.render(
   <React.StrictMode>
-    <AppRun />
+    {/* <AppRun /> */}
+    <ChatPage />
   </React.StrictMode>
 );

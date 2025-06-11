@@ -1,5 +1,5 @@
 import { Eko } from "@eko-ai/eko";
-import { main } from "./main";
+import { generateWorkFlow, initEko, main } from "./main";
 
 var eko: Eko;
 
@@ -11,12 +11,17 @@ chrome.runtime.onMessage.addListener(async function (
   sender,
   sendResponse
 ) {
-  if (request.type == "run") {
+  if(request.type == "init") {
+    if(!eko){
+      eko = await initEko();
+    }
+  }
+  else if (request.type == "run") {
     try {
       // Click the RUN button to execute the main function (workflow)
-      chrome.runtime.sendMessage({ type: "log", log: "Run..." });
+      // chrome.runtime.sendMessage({ type: "log", log: "Run..." });
       // Run workflow
-      eko = await main(request.prompt);
+      await main(eko, request.prompt);
     } catch (e) {
       console.error(e);
       chrome.runtime.sendMessage({
@@ -31,6 +36,10 @@ chrome.runtime.onMessage.addListener(async function (
       chrome.runtime.sendMessage({ type: "log", log: "Abort taskId: " + taskId });
     });
     chrome.runtime.sendMessage({ type: "log", log: "Stop" });
+  } else if (request.type == "step") {
+    generateWorkFlow(eko, request.prompt)
+  } else if (request.type == "step_stop") {
+
   }
 });
 
