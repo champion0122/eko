@@ -1,14 +1,20 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Welcome } from "./Welcome";
 import { ChatInput } from "./components/ChatInput";
-import { Message, MessageList } from "./components/MessageList";
+import { IAssistantMessage, Message, MessageList } from "./components/MessageList";
 import { llmConfig } from "../constants/llmconfig.constant";
 
 export const ChatPage = () => {
+    const DEFAULT_NEW_MESSAGE: IAssistantMessage = {
+        role: "assistant",
+        content: [],
+        thought: "",
+        result: "",
+    };
     const [messages, setMessages] = useState<Message[]>([]);
     const [prompt, setPrompt] = useState("");
     const [running, setRunning] = useState(false);
-    const [streamLog, setStreamLog] = useState<any>(null);
+    const [streamingAssistant, setStreamingAssistant] = useState<IAssistantMessage | null>(null);
 
     useEffect(() => {
         chrome.storage.sync.set(
@@ -32,26 +38,22 @@ export const ChatPage = () => {
             if (message.type === "stop") {
                 setRunning(false);
                 chrome.storage.local.set({ running: false });
-            } else if (message.type === "log") {
-                const time = new Date().toLocaleTimeString();
-                const log_message = {
-                    time,
-                    log: message.log,
-                    level: message.level || "info",
-                };
-                if (message.stream || !message.log) {
-                    setStreamLog(message.log);
-                } else {
-                    setMessages((prev) => {
-                        const lastMsg = prev[prev.length - 1];
-                        if (lastMsg.role === "assistant") {
-                            lastMsg.content += message.log;
-                        } else {
-                            prev.push({ role: "assistant", content: message.log });
-                        }
-                        return prev;
-                    });
-                    setStreamLog('');
+            } else if (message.type === "message") {
+                const data = message.message;
+                if (message.stream) {
+                    // 流式更新
+                    setStreamingAssistant(prev => ({
+                        ...prev,
+                        ...data,
+                        content: data.content || prev?.content || [],
+                        thought: data.thought ?? prev?.thought,
+                        result: data.result ?? prev?.result,
+                        role: "assistant"
+                    }));
+                } else if (!message.stream && data.result) {
+                    // 流式结束，固化消息
+                    setMessages(prev => [...prev, { ...streamingAssistant, ...data, role: "assistant" }]);
+                    setStreamingAssistant(null);
                 }
             }
         };
@@ -59,7 +61,7 @@ export const ChatPage = () => {
         return () => {
             chrome.runtime.onMessage.removeListener(messageListener);
         };
-    }, []);
+    }, [streamingAssistant]);
 
     const handleSend = (prompt: string) => {
         if (!prompt.trim()) return;
@@ -71,17 +73,20 @@ export const ChatPage = () => {
     };
 
     return (
-        <div className="relative w-full h-full min-h-[1024px] bg-gradient-to-b from-[#EEEDFE] to-[#E7F0FE] rounded-[20px] shadow-lg overflow-hidden flex flex-col items-center">
-            {messages.length === 0 && <Welcome onSend={handleSend} />}
-            {/* 消息列表 */}
-            <MessageList messages={messages} running={running} streamLog={streamLog} />
-            {/* 输入框 */}
-            <ChatInput
-                value={prompt}
-                onChange={setPrompt}
-                onSend={() => handleSend(prompt)}
-                disabled={running}
-            />
+        <div className="flex h-full min-h-[1024px] w-full">
+            <div className="relative flex-1 h-full min-h-[1024px] bg-gradient-to-b from-[#EEEDFE] to-[#E7F0FE] rounded-[20px] shadow-lg overflow-hidden flex flex-col items-center">
+                {messages.length === 0 && <Welcome onSend={handleSend} />}
+                {/* 消息列表 */}
+                <MessageList messages={messages} running={running} streamingAssistant={streamingAssistant} />
+                {/* 输入框 */}
+                <ChatInput
+                    value={prompt}
+                    onChange={setPrompt}
+                    onSend={() => handleSend(prompt)}
+                    disabled={running}
+                />
+            </div>
+            {/* <HistorySidebar /> */}
         </div>
     );
 };

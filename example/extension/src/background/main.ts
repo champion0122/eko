@@ -8,6 +8,7 @@ import {
 } from "@eko-ai/eko/types";
 import { BrowserAgent } from "@eko-ai/eko-extension";
 import { meetingAgent } from "./sql-agent/sql_agent";
+import { Message } from "../sidebar/components/MessageList";
 
 export async function getLLMConfig(name: string = "llmConfig"): Promise<any> {
   let result = await chrome.storage.sync.get([name]);
@@ -40,36 +41,37 @@ export async function initEko(): Promise<Eko> {
 
   let callback: StreamCallback & HumanCallback = {
     onMessage: async (message: StreamCallbackMessage) => {
-      if ((message as any)?.toolName === "meeting_room_query") return;
+      // if ((message as any)?.toolName === "meeting_room_query") return;
       if (message.type == "workflow") {
-        printLog(
-          `思考中：${
-            message.workflow.thought
-          } \n\n${message.workflow.agents?.map((agent, index) => {
-            return `任务${index + 1}： ${agent.task}\n\n执行步骤：\n\n${(
-              agent.nodes as WorkflowTextNode[]
-            )
-              .map((node, _i) => `${_i + 1}. ${node.text}`)
-              .join("\n")}`;
-          })}`,
-          "info",
-          !message.streamDone
-        );
+        sendMessage({
+          thought: message.workflow.thought,
+          content: (message.workflow.agents?.[0]?.nodes as WorkflowTextNode[]).map((node, _i) => {
+            return {
+              index: _i + 1,
+              title: node.text,
+              content: node.output
+            }
+          })
+        }, !message.streamDone);
       } else if (message.type == "text") {
-        printLog(message.text, "info", !message.streamDone);
-      } else if (message.type == "tool_streaming") {
-        printLog(
-          `${message.agentName} > ${message.toolName}\n${message.paramsText}`,
-          "info",
-          true
-        );
-      } else if (message.type == "tool_use") {
-        printLog(
-          `${message.agentName} > ${message.toolName}\n${JSON.stringify(
-            message.params
-          )}`
-        );
+        sendMessage({
+          result: message.text,
+        }, !message.streamDone);
       }
+      // else if (message.type == "tool_streaming") {
+      //   printLog(
+      //     `${message.agentName} > ${message.toolName}\n${message.paramsText}`,
+      //     "info",
+      //     true
+      //   );
+      // } 
+      // else if (message.type == "tool_use") {
+      //   printLog(
+      //     `${message.agentName} > ${message.toolName}\n${JSON.stringify(
+      //       message.params
+      //     )}`
+      //   );
+      // }
       console.log("message: ", JSON.stringify(message, null, 2));
     },
     onHumanConfirm: async (context, prompt) => {
@@ -578,7 +580,7 @@ export async function initEko(): Promise<Eko> {
 
   let agents = [
     new BrowserAgent(),
-    meetingAgent,
+    // meetingAgent,
   ];
   let eko = new Eko({ llms, agents, callback });
   return eko;
@@ -626,5 +628,13 @@ function printLog(
     log: message + "",
     level: level || "info",
     stream,
+  });
+}
+
+function sendMessage(message: any, stream?: boolean) {
+  chrome.runtime.sendMessage({
+    type: "message",
+    message,
+    stream
   });
 }
