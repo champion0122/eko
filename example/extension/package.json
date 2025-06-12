@@ -3,9 +3,9 @@
   "version": "2.0.0",
   "description": "eko browser extension",
   "scripts": {
-    "build": "webpack --config webpack.js",
-    "dev": "NODE_ENV=development webpack --config webpack.js --watch",
-    "watch": "NODE_ENV=development webpack --config webpack.js --watch"
+    "build": "cross-env NODE_ENV=production npx webpack --config webpack.js",
+    "dev": "cross-env NODE_ENV=development npx webpack --config webpack.js --watch",
+    "watch": "cross-env NODE_ENV=development npx webpack --config webpack.js --watch"
   },
   "author": "FellouAI",
   "license": "MIT",
@@ -27,6 +27,7 @@
     "@types/react-dom": "^18.0.11",
     "autoprefixer": "^10.4.19",
     "copy-webpack-plugin": "^9.0.1",
+    "cross-env": "^7.0.3",
     "css-loader": "^7.1.2",
     "glob": "^7.1.6",
     "postcss": "^8.4.35",

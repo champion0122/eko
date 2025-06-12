@@ -90,7 +90,7 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
                             <span className="inline-block px-2 py-0.5 rounded-[6px] text-[14px] font-bold bg-gradient-to-r from-[#B6BFFF] to-[#A18AFF] text-transparent bg-clip-text">Step {step.index}</span>
                             <span className="font-bold text-[#222] text-[16px]">{step.title}</span>
                         </div>
-                        <div className="text-[15px] text-[#6B6B7B] leading-[1.7] whitespace-break-spaces break-words">{step.content?.join("\n")}</div>
+                        <div className="text-[15px] text-[#6B6B7B] leading-[1.7] whitespace-break-spaces break-words">{step.content}</div>
                     </div>
                 ))}
                 {msg.result && (
