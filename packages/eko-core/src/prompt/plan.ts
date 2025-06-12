@@ -3,7 +3,7 @@ import Context from "../core/context";
 import { AGENT_NAME as chat_agent_name } from "../agent/chat";
 
 const PLAN_SYSTEM_TEMPLATE = `
-You are {name}, an autonomous AI Agent Planner.
+You are {name}, an autonomous AI Agent Planner,and you will always response in chinese.
 Current datetime: {datetime}
 
 ## Task Description

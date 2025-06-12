@@ -1,5 +1,5 @@
 // @ts-nocheck
-export function run_build_dom_tree() {
+export function run_build_dom_tree(selector?: string) {
   /**
    * Get clickable elements on the page
    *
@@ -385,7 +385,10 @@ export function run_build_dom_tree() {
         'tree-node',
         'fr-trigger-editor',
         'fr-trigger-btn-up',
-        'bi-basic-button'
+        'bi-basic-button',
+        'fr-widget-click',
+        'fr-checkbox-checkoff',
+        'fr-trigger-texteditor'
       ];
 
       const tagName = element.tagName.toLowerCase();
@@ -674,7 +677,10 @@ export function run_build_dom_tree() {
 
       return nodeData;
     }
-    return buildDomTree(document.body);
+    
+    const selectTarget = selector ? document.querySelector(selector) : document.body;
+
+    return buildDomTree(selectTarget);
   }
 
   window.get_clickable_elements = get_clickable_elements;
