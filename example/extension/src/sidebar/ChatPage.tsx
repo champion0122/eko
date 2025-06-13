@@ -55,6 +55,10 @@ export const ChatPage = () => {
                     setMessages(prev => [...prev, { ...streamingAssistant, ...data, role: "assistant" }]);
                     setStreamingAssistant(null);
                 }
+            } else if (message.type === "error") {
+                setRunning(false);
+                chrome.storage.local.set({ running: false });
+                setMessages(prev => [...prev, { role: "assistant", content: [{ index: 0, title: "error", content: message.error }] }]);
             }
         };
         chrome.runtime.onMessage.addListener(messageListener);

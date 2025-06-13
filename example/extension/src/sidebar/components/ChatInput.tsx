@@ -25,6 +25,24 @@ const quickActions = [
   }
 ];
 
+const SUBJECTS = [
+  {
+    id: 1,
+    title: "📖 预约会议室",
+    desc: "根据近期纳斯达克的变化，制作报告"
+  },
+  {
+    id: 2,
+    title: "💡 生成报告",
+    desc: "线索转化和人力资源的人员分布，生成分析报告"
+  },
+  {
+    id: 3,
+    title: "🍃 资产检索",
+    desc: "线索转化和人力资源的人员分布，生成分析报告"
+  }
+]
+
 export const ChatInput: React.FC<ChatInputProps> = ({ value, onChange, onSend, disabled }) => {
   // 处理快捷按钮点击
   const handleQuickAction = (prompt: string) => {
@@ -32,6 +50,14 @@ export const ChatInput: React.FC<ChatInputProps> = ({ value, onChange, onSend, d
   };
 
   return (
+    <>
+      <div className="flex gap-[8px] justify-start mx-[20px] w-[calc(100%-40px)]">
+        {SUBJECTS.map(item => (
+          <div key={item.id} className="cursor-pointer flex w-[100px] h-[32px] p-[6px] justify-center items-center bg-[#ABB5CE38] rounded-[6px]">
+            <div className="text-[#0A1833] text-[13px] leading-[20px] font-[400]">{item.title}</div>
+          </div>
+        ))}
+      </div>
     <div className="transition-all bg-white rounded-[12px] border-[1px] border-[#DCE4FA] focus:border-[#8C8CFF] shadow-[0_6px_20px_0_rgba(171,181,206,0.2)] p-[8px] my-[16px] mx-[20px] w-[calc(100%-40px)]">
       {/* 输入区 */}
       <textarea
@@ -74,5 +100,6 @@ export const ChatInput: React.FC<ChatInputProps> = ({ value, onChange, onSend, d
         </button>
       </div>
     </div>
+    </>
   );
 };

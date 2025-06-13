@@ -1,5 +1,5 @@
 import { Eko } from "@eko-ai/eko";
-import { generateWorkFlow, initEko, main } from "./main";
+import { generateWorkFlow, initEko, main, sendMessage } from "./main";
 
 var eko: Eko;
 
@@ -24,11 +24,10 @@ chrome.runtime.onMessage.addListener(async function (
       await main(eko, request.prompt);
     } catch (e) {
       console.error(e);
-      chrome.runtime.sendMessage({
-        type: "log",
-        log: e + "",
-        level: "error",
-      });
+      sendMessage({
+        type: "error",
+        error: e + "",
+      })
       chrome.storage.local.set({ running: false });
     }
   } else if (request.type == "stop") {

@@ -99,6 +99,10 @@ export interface IMeetingRoom {
 }
 
 export async function main(eko, prompt: string) {
+  
+  if(!eko){
+    eko = await initEko();
+  }
 
   if(prompt.includes("会议室")) {
     // generateWorkFlow(eko, prompt);
@@ -106,7 +110,7 @@ export async function main(eko, prompt: string) {
     request<{message: string;
       data: IMeetingRoom[];
       result: string;
-    }>('http://10.233.6.155:8880/bookroom/chat', { method: 'POST', data: {
+    }>('http://119.8.173.9:8880/bookroom/chat', { method: 'POST', data: {
       "chatQuery":prompt,
       "username": "Obo"
     }}).then(({
@@ -115,10 +119,34 @@ export async function main(eko, prompt: string) {
       message
     }) => {
       if(data.length > 0){
+        sendMessage({
+          thought: "好的！我收到了您的请求，需要帮助您预约一下会议室，当前浏览器页面显示CRM....用户可能也需要其他网页...我会上查询明天下午14:00的空会议室，并为您预约一个能容纳6人的会议室，同时需要在无锡和南京都进行预约。我将立即开始处理这个任务。",
+          content: [{
+            index: 1,
+            title: "寻找预约会议室的网页",
+            content: "信息管理系统CRM：https://crm.finereporthelp.com/WebReport/decision?#directory?activeTab=bf50447e-5ce2-4c7f-834e-3e1495df033a"
+          },{
+            index: 2,
+            title: "找到会议室预约查询-查询空余会议室",
+            content: "【地区】选择南京和无锡 \n【日期】选择明天2025-06-05\n【时间段】选择下午"
+          },{
+            index: 3,
+            title: "列出符合要求的会议室",
+            content: "电401、电613、电12"
+          }]
+        })
         chrome.runtime.sendMessage({ type: "meeting_rooms", data });
+      } else if(result === 'success') {
+        sendMessage({
+          result: message
+        })
+        chrome.storage.local.set({ running: false });
+      } else {
+        sendMessage({
+          result: message
+        })
+        chrome.storage.local.set({ running: false });
       }
-    }).finally(() => {
-      chrome.storage.local.set({ running: false });
     });
 
     return;
@@ -168,7 +196,7 @@ function printLog(
   });
 }
 
-function sendMessage(message: any, stream?: boolean) {
+export function sendMessage(message: any, stream?: boolean) {
   chrome.runtime.sendMessage({
     type: "message",
     message,

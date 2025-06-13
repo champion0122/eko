@@ -4,7 +4,7 @@ import { IMeetingRoom } from "../../background/main";
 export interface IStep {
     index: number;
     title: string;
-    content?: string[];
+    content?: string;
 }
 
 export interface IUserMessage {
@@ -37,7 +37,7 @@ const AiAvatar = () => (
 
 // Figma风格loading动画
 const AILoading = () => (
-    <div className="flex items-center gap-2 pl-2">
+    <div className="flex items-center justify-center h-full gap-2 pl-2">
         <div className="flex gap-2">
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#626FF6] opacity-50 animate-bounce" style={{ animationDelay: '0s' }}></span>
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#626FF6] opacity-50 animate-bounce" style={{ animationDelay: '0.15s' }}></span>
@@ -131,6 +131,9 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
                                 <span className="inline-block px-2 py-0.5 bg-[#E6E8FF] rounded-[6px] text-[#424BA6] text-[14px] font-bold">Step {step.index}</span>
                                 <span className="font-bold text-[#222] text-[14px]">{step.title}</span>
                             </div>
+                            {
+                                
+                            }
                             <div className="text-[15px] text-[#6B6B7B] leading-[1.7] whitespace-break-spaces break-words">{step.content}</div>
                         </div>
                     ))}
@@ -192,9 +195,7 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
                 <div className="flex justify-start mb-4">
                     <div className="flex items-start gap-3">
                         <AiAvatar />
-                        <div className="text-base text-[#222]">
-                            <AILoading />
-                        </div>
+                        <AILoading />
                     </div>
                 </div>
             )}

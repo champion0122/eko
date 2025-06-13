@@ -32,9 +32,9 @@ export const Welcome: React.FC<{ onSend: (prompt: string) => void }> = ({ onSend
         </span>
       </div>
       {/* banner图片 */}
-      <div className="container w-[395px] h-[56px]">
+      {/* <div className="container w-[395px] h-[56px]">
         <div className="overlay"></div>
-      </div>
+      </div> */}
       <img
         src="/assets/banner.png"
         alt="banner"
