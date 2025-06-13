@@ -7,7 +7,8 @@ import {
   ToolResult,
 } from "@eko-ai/eko/types";
 import { BrowserAgent } from "@eko-ai/eko-extension";
-import { meetingAgent } from "./sql-agent/sql_agent";
+import { meetingAgent } from "./meeting-agent/meeting_agent";
+import { request } from "../utils/request";
 
 export async function getLLMConfig(name: string = "llmConfig"): Promise<any> {
   let result = await chrome.storage.sync.get([name]);
@@ -84,13 +85,45 @@ export async function initEko(): Promise<Eko> {
 
   let agents = [
     new BrowserAgent(),
-    meetingAgent,
+    // meetingAgent,
   ];
   let eko = new Eko({ llms, agents, callback });
   return eko;
 }
 
+export interface IMeetingRoom {
+  room_name: string;
+  roome_area: string;
+  room_id: number;
+  room_maxnum: number;
+}
+
 export async function main(eko, prompt: string) {
+
+  if(prompt.includes("会议室")) {
+    // generateWorkFlow(eko, prompt);
+
+    request<{message: string;
+      data: IMeetingRoom[];
+      result: string;
+    }>('http://10.233.6.155:8880/bookroom/chat', { method: 'POST', data: {
+      "chatQuery":prompt,
+      "username": "Obo"
+    }}).then(({
+      data,
+      result,
+      message
+    }) => {
+      if(data.length > 0){
+        chrome.runtime.sendMessage({ type: "meeting_rooms", data });
+      }
+    }).finally(() => {
+      chrome.storage.local.set({ running: false });
+    });
+
+    return;
+  }
+  
   eko
     .run(prompt)
     .then((res) => {

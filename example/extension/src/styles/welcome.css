@@ -1,0 +1,12 @@
+.container {
+    position: relative;
+    background: url('../../public/assets/banner.png') center/cover; /* 背景图 */
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: transparent;
+    mix-blend-mode: multiply; /* 正片叠底效果 */
+    isolation: isolate; /* 创建层叠上下文，避免与父元素混合 */
+  }

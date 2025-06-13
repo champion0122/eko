@@ -29,6 +29,7 @@ chrome.runtime.onMessage.addListener(async function (
         log: e + "",
         level: "error",
       });
+      chrome.storage.local.set({ running: false });
     }
   } else if (request.type == "stop") {
     eko && eko.getAllTaskId().forEach(taskId => {

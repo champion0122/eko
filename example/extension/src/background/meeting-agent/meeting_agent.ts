@@ -30,7 +30,7 @@ export let meetingAgent: Agent;
 
 // Method one
 meetingAgent = new Agent({
-  name: "SQL",
-  description: `会议室预约相关操作`,
+  name: "MEETING",
+  description: `会议室预约、查询、取消相关操作`,
   tools: tools,
 });

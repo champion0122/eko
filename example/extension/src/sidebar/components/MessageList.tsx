@@ -1,5 +1,6 @@
 import { Button } from "antd";
 import React, { useRef, useEffect, useState } from "react";
+import { IMeetingRoom } from "../../background/main";
 export interface IStep {
     index: number;
     title: string;
@@ -23,17 +24,55 @@ export type Message = IUserMessage | IAssistantMessage;
 interface MessageListProps {
     messages: Message[];
     running?: boolean;
+    streamLog?: string;
     streamingAssistant?: IAssistantMessage | null;
 }
+
+// Figma风格AI头像
+const AiAvatar = () => (
+    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#626FF6]">
+        <img src="/assets/ai_avatar.svg" alt="AI" className="w-5 h-5" />
+    </div>
+);
+
+// Figma风格loading动画
+const AILoading = () => (
+    <div className="flex items-center gap-2 pl-2">
+        <div className="flex gap-2">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#626FF6] opacity-50 animate-bounce" style={{ animationDelay: '0s' }}></span>
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#626FF6] opacity-50 animate-bounce" style={{ animationDelay: '0.15s' }}></span>
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#626FF6] opacity-50 animate-bounce" style={{ animationDelay: '0.3s' }}></span>
+        </div>
+    </div>
+);
 
 export const MessageList: React.FC<MessageListProps> = ({ messages, running, streamingAssistant }) => {
     const endRef = useRef<HTMLDivElement>(null);
     // 默认全部展开
     const [expandThought, setExpandThought] = useState<{ [key: number]: boolean }>({});
+    const [meetingRooms, setMeetingRooms] = useState<IMeetingRoom[]>([]);
+    const [selectedRoom, setSelectedRoom] = useState<string[]>([]);
 
     useEffect(() => {
         endRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, streamingAssistant]);
+
+    useEffect(() => {
+        const messageListener = (message: any) => {
+            if (!message) {
+                return;
+            }
+            console.log("message.type ", message.type);
+            if (message.type === "meeting_rooms") {
+                setMeetingRooms(message.data);
+            }
+        };
+
+        chrome.runtime.onMessage.addListener(messageListener);
+        return () => {
+            chrome.runtime.onMessage.removeListener(messageListener);
+        };
+    }, []);
 
     // 新消息默认展开
     useEffect(() => {
@@ -59,43 +98,75 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
         // assistant消息卡片
         const isExpanded = expandThought[msgIdx] || false;
         return (
-            <div className="max-w-[80%] bg-[#F7F8FF] border border-[#D6D9F7] rounded-[16px] px-6 py-5 text-base text-[#222] shadow-sm">
-                <div className="font-bold text-[18px] text-[#222] mb-2 flex items-center gap-2">
-                    思考完成
-                    {msg.thought && (
-                        <button
-                            className="ml-2 text-xs text-[#6D6AFF] bg-transparent border-none outline-none cursor-pointer px-2 py-1 rounded hover:bg-[#ececff] transition flex items-center"
-                            onClick={() => setExpandThought(prev => ({ ...prev, [msgIdx]: !isExpanded }))}
-                        >
-                            {isExpanded ? (
-                                // 向上箭头
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                                    <path d="M19 15l-7-7-7 7" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                            ) : (
-                                // 向下箭头
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                                    <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                            )}
-                        </button>
+            <div className="flex items-start gap-3">
+                <AiAvatar />
+                <div className="text-base">
+                    <div className="font-[400] text-[13px] text-[#081633] mb-2 flex items-center gap-2">
+                        思考完成
+                        {msg.thought && (
+                            <button
+                                className="ml-2 text-xs text-[#6D6AFF] bg-transparent border-none outline-none cursor-pointer px-2 py-1 rounded hover:bg-[#ececff] transition flex items-center"
+                                onClick={() => setExpandThought(prev => ({ ...prev, [msgIdx]: !isExpanded }))}
+                            >
+                                {isExpanded ? (
+                                    // 向上箭头
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                        <path d="M19 15l-7-7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                ) : (
+                                    // 向下箭头
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                        <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                )}
+                            </button>
+                        )}
+                    </div>
+                    {msg.thought && isExpanded && (
+                        <div className="border-l border-[#0816331F] text-[12px] pl-[12px] py=[4px] text-[#6B6B7B] leading-[1.7] whitespace-break-spaces break-words mb-2">{msg.thought}</div>
+                    )}
+                    {msg.content?.map((step, idx) => (
+                        <div key={idx} className="mb-4 last:mb-0">
+                            <div className="flex items-center gap-2 mb-1 leading-[26px]">
+                                <span className="inline-block px-2 py-0.5 bg-[#E6E8FF] rounded-[6px] text-[#424BA6] text-[14px] font-bold">Step {step.index}</span>
+                                <span className="font-bold text-[#222] text-[14px]">{step.title}</span>
+                            </div>
+                            <div className="text-[15px] text-[#6B6B7B] leading-[1.7] whitespace-break-spaces break-words">{step.content}</div>
+                        </div>
+                    ))}
+                    {meetingRooms.length > 0 && (
+                        <div className="bg-white rounded-xl shadow-[0_6px_20px_0_rgba(171,181,206,0.24)] p-6 mt-4 mb-2">
+                            <div className="font-bold text-lg text-[#222] mb-3 flex items-center">
+                                <span className="mr-2">💡</span>
+                                会议室可用列表
+                            </div>
+                            {meetingRooms.map(room => (
+                                <div
+                                    key={room.room_id}
+                                    className="bg-[rgba(171,181,206,0.22)] rounded-lg p-4 mb-3 flex items-center justify-between"
+                                >
+                                    <div>
+                                        <div className="font-semibold text-base text-[#222]">{room.room_name}</div>
+                                        <div className="text-sm text-[#6B6B7B] mt-1">可容纳{room.room_maxnum}人</div>
+                                    </div>
+                                    <Button
+                                        type="primary"
+                                        className="bg-gradient-to-r from-[#4482F7] to-[#735EFF] border-none rounded-full text-white h-8 px-6 font-semibold text-sm shadow-none"
+                                        style={{ boxShadow: "none" }}
+                                        onClick={() => {
+                                            // chrome.runtime.sendMessage({ type: "run", prompt: `预约会议室名为${room.room_name}` });
+                                        }}
+                                    >
+                                        预约
+                                    </Button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    {msg.result && (
+                        <div className="text-[15px] text-[#6B6B7B] leading-[1.7] whitespace-break-spaces break-words">{msg.result}</div>
                     )}
                 </div>
-                {msg.thought && isExpanded && (
-                    <div className="text-[15px] text-[#6B6B7B] leading-[1.7] whitespace-break-spaces break-words mb-2">{msg.thought}</div>
-                )}
-                {msg.content?.map((step, idx) => (
-                    <div key={idx} className="mb-4 last:mb-0">
-                        <div className="flex items-center gap-2 mb-1">
-                            <span className="inline-block px-2 py-0.5 rounded-[6px] text-[14px] font-bold bg-gradient-to-r from-[#B6BFFF] to-[#A18AFF] text-transparent bg-clip-text">Step {step.index}</span>
-                            <span className="font-bold text-[#222] text-[16px]">{step.title}</span>
-                        </div>
-                        <div className="text-[15px] text-[#6B6B7B] leading-[1.7] whitespace-break-spaces break-words">{step.content}</div>
-                    </div>
-                ))}
-                {msg.result && (
-                    <div className="text-[15px] text-[#6B6B7B] leading-[1.7] whitespace-break-spaces break-words">{msg.result}</div>
-                )}
             </div>
         );
     }
@@ -116,6 +187,54 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
                     {renderMessage(streamingAssistant, messages.length)}
                 </div>
             )}
+            {/* 当没有streamingAssistant但有running状态时显示loading */}
+            {!streamingAssistant && running && (
+                <div className="flex justify-start mb-4">
+                    <div className="flex items-start gap-3">
+                        <AiAvatar />
+                        <div className="text-base text-[#222]">
+                            <AILoading />
+                        </div>
+                    </div>
+                </div>
+            )}
+            {meetingRooms.length > 0 && (
+                        <div className="bg-white rounded-xl shadow-[0_6px_20px_0_rgba(171,181,206,0.24)] p-6 mt-4 mb-2">
+                            <div className="font-bold text-lg text-[#222] mb-3 flex items-center">
+                                <span className="mr-2">💡</span>
+                                会议室可用列表
+                            </div>
+                            {meetingRooms.map(room => (
+                                <div
+                                    key={room.room_id}
+                                    className={`cursor-pointer bg-[rgba(171,181,206,0.22)] rounded-lg p-4 mb-3 flex items-center justify-between ${selectedRoom.includes(room.room_name) ? "!bg-white !border-[#9999FF] border" : ""}`}
+                                    onClick={() => {
+                                        console.log("room.room_name ", room.room_name);
+                                        console.log("selectedRoom ", selectedRoom);
+                                        if(selectedRoom.includes(room.room_name)){
+                                            setSelectedRoom(prev => prev.filter(_room => _room !== room.room_name));
+                                        } else {
+                                            setSelectedRoom(prev => [...prev, room.room_name]);
+                                        }
+                                    }}
+                                >
+                                     <div className="font-semibold text-base text-[#222]">{room.room_name}</div>
+                                     <div className="text-sm text-[#6B6B7B] mt-1">可容纳{room.room_maxnum}人</div>
+                                </div>
+                            ))}
+                            <Button
+                                type="primary"
+                                className="bg-[#626FF6] border-none rounded-[6px] text-white h-8 px-6 font-semibold text-sm shadow-none"
+                                style={{ boxShadow: "none" }}
+                                onClick={() => {
+                                    chrome.runtime.sendMessage({ type: "run", prompt: `预约以下会议室: ${selectedRoom.map(room => `《${room}》`).join(",")}` });
+                                }}
+                                disabled={selectedRoom.length === 0}
+                            >
+                                预约
+                            </Button>
+                        </div>
+                    )}
             <div ref={endRef} />
         </div>
     );

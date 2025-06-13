@@ -1,4 +1,5 @@
 import React from "react";
+import "../styles/welcome.css";
 
 function getGreeting() {
   const hour = new Date().getHours();
@@ -31,10 +32,13 @@ export const Welcome: React.FC<{ onSend: (prompt: string) => void }> = ({ onSend
         </span>
       </div>
       {/* banner图片 */}
+      <div className="container w-[395px] h-[56px]">
+        <div className="overlay"></div>
+      </div>
       <img
         src="/assets/banner.png"
         alt="banner"
-        className="w-[395px] h-[56px] object-cover mt-[32px] rounded-[12px] shadow"
+        className="w-[395px] h-[56px] object-cover mt-[32px] bg-blend-multiply bg-transparent"
       />
       {/* 能帮你做什么 */}
       <div className="m-[20px] mt-[60px] w-[calc(100%-40px)] rounded-[20px] bg-gradient-to-b flex flex-col items-start from-[#E7E4FF] to-[#E8EDFF]">
