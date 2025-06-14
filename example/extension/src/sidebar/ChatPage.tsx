@@ -15,6 +15,7 @@ export const ChatPage = () => {
     const [prompt, setPrompt] = useState("");
     const [running, setRunning] = useState(false);
     const [streamingAssistant, setStreamingAssistant] = useState<IAssistantMessage | null>(null);
+    const [isMeeting, setIsMeeting] = useState(false);
 
     useEffect(() => {
         chrome.storage.sync.set(
@@ -40,6 +41,11 @@ export const ChatPage = () => {
                 chrome.storage.local.set({ running: false });
             } else if (message.type === "message") {
                 const data = message.message;
+
+                // bad
+                if(data.meeting){
+                    setIsMeeting(true);
+                }
                 if (message.stream) {
                     // 流式更新
                     setStreamingAssistant(prev => ({
@@ -50,7 +56,9 @@ export const ChatPage = () => {
                         result: data.result ?? prev?.result,
                         role: "assistant"
                     }));
-                } else if (!message.stream && data.result) {
+                    // bad
+                    setIsMeeting(false);
+                } else if (!message.stream && data.result || data.meeting) {
                     // 流式结束，固化消息
                     setMessages(prev => [...prev, { ...streamingAssistant, ...data, role: "assistant" }]);
                     setStreamingAssistant(null);
@@ -81,7 +89,7 @@ export const ChatPage = () => {
             <div className="relative flex-1 h-full min-h-[1024px] bg-gradient-to-b from-[#EEEDFE] to-[#E7F0FE] rounded-[20px] shadow-lg overflow-hidden flex flex-col items-center">
                 {messages.length === 0 && <Welcome onSend={handleSend} />}
                 {/* 消息列表 */}
-                <MessageList messages={messages} running={running} streamingAssistant={streamingAssistant} />
+                <MessageList messages={messages} running={running} streamingAssistant={streamingAssistant} isMeeting={isMeeting} />
                 {/* 输入框 */}
                 <ChatInput
                     value={prompt}

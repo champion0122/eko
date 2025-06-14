@@ -26,12 +26,13 @@ interface MessageListProps {
     running?: boolean;
     streamLog?: string;
     streamingAssistant?: IAssistantMessage | null;
+    isMeeting?: boolean;
 }
 
 // Figma风格AI头像
 const AiAvatar = () => (
-    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#626FF6]">
-        <img src="/assets/ai_avatar.svg" alt="AI" className="w-5 h-5" />
+    <div className="flex items-center justify-center w-[32px] h-[32px] rounded-full bg-[#626FF6]">
+        <img src="/assets/ai_avatar.svg" alt="AI" className="w-full h-full" />
     </div>
 );
 
@@ -46,7 +47,7 @@ const AILoading = () => (
     </div>
 );
 
-export const MessageList: React.FC<MessageListProps> = ({ messages, running, streamingAssistant }) => {
+export const MessageList: React.FC<MessageListProps> = ({ messages, running, streamingAssistant, isMeeting }) => {
     const endRef = useRef<HTMLDivElement>(null);
     // 默认全部展开
     const [expandThought, setExpandThought] = useState<{ [key: number]: boolean }>({});
@@ -146,68 +147,6 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
                             {meetingRooms.map(room => (
                                 <div
                                     key={room.room_id}
-                                    className="bg-[rgba(171,181,206,0.22)] rounded-lg p-4 mb-3 flex items-center justify-between"
-                                >
-                                    <div>
-                                        <div className="font-semibold text-base text-[#222]">{room.room_name}</div>
-                                        <div className="text-sm text-[#6B6B7B] mt-1">可容纳{room.room_maxnum}人</div>
-                                    </div>
-                                    <Button
-                                        type="primary"
-                                        className="bg-gradient-to-r from-[#4482F7] to-[#735EFF] border-none rounded-full text-white h-8 px-6 font-semibold text-sm shadow-none"
-                                        style={{ boxShadow: "none" }}
-                                        onClick={() => {
-                                            // chrome.runtime.sendMessage({ type: "run", prompt: `预约会议室名为${room.room_name}` });
-                                        }}
-                                    >
-                                        预约
-                                    </Button>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                    {msg.result && (
-                        <div className="text-[15px] text-[#6B6B7B] leading-[1.7] whitespace-break-spaces break-words">{msg.result}</div>
-                    )}
-                </div>
-            </div>
-        );
-    }
-
-    return (
-        <div className="flex-1 w-full px-4 py-2 overflow-y-auto bg-transparent">
-            {messages.map((msg, idx) => (
-                <div
-                    key={idx}
-                    className={`flex mb-4 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                >
-                    {renderMessage(msg, idx)}
-                </div>
-            ))}
-            {/* 流式assistant消息 */}
-            {streamingAssistant && (
-                <div className="flex justify-start mb-4 break-words">
-                    {renderMessage(streamingAssistant, messages.length)}
-                </div>
-            )}
-            {/* 当没有streamingAssistant但有running状态时显示loading */}
-            {!streamingAssistant && running && (
-                <div className="flex justify-start mb-4">
-                    <div className="flex items-start gap-3">
-                        <AiAvatar />
-                        <AILoading />
-                    </div>
-                </div>
-            )}
-            {meetingRooms.length > 0 && (
-                        <div className="bg-white rounded-xl shadow-[0_6px_20px_0_rgba(171,181,206,0.24)] p-6 mt-4 mb-2">
-                            <div className="font-bold text-lg text-[#222] mb-3 flex items-center">
-                                <span className="mr-2">💡</span>
-                                会议室可用列表
-                            </div>
-                            {meetingRooms.map(room => (
-                                <div
-                                    key={room.room_id}
                                     className={`cursor-pointer bg-[rgba(171,181,206,0.22)] rounded-lg p-4 mb-3 flex items-center justify-between ${selectedRoom.includes(room.room_name) ? "!bg-white !border-[#9999FF] border" : ""}`}
                                     onClick={() => {
                                         console.log("room.room_name ", room.room_name);
@@ -236,6 +175,39 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
                             </Button>
                         </div>
                     )}
+                    {msg.result && (
+                        <div className="text-[15px] text-[#6B6B7B] leading-[1.7] whitespace-break-spaces break-words">{msg.result}</div>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex-1 w-full px-4 py-2 overflow-y-auto bg-transparent">
+            {messages.map((msg, idx) => (
+                <div
+                    key={idx}
+                    className={`flex mb-4 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                >
+                    {renderMessage(msg, idx)}
+                </div>
+            ))}
+            {/* 流式assistant消息 */}
+            {streamingAssistant && (
+                <div className="flex justify-start mb-4 break-words">
+                    {renderMessage(streamingAssistant, messages.length)}
+                </div>
+            )}
+            {/* 当没有streamingAssistant但有running状态时显示loading */}
+            {!streamingAssistant && running && !isMeeting && (
+                <div className="flex justify-start mb-4">
+                    <div className="flex items-start gap-3">
+                        <AiAvatar />
+                        <AILoading />
+                    </div>
+                </div>
+            )}
             <div ref={endRef} />
         </div>
     );

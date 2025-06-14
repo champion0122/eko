@@ -110,7 +110,7 @@ export async function main(eko, prompt: string) {
     request<{message: string;
       data: IMeetingRoom[];
       result: string;
-    }>('http://119.8.173.9:8880/bookroom/chat', { method: 'POST', data: {
+    }>('https://intlrd.fineres.com/bookroom/chat', { method: 'POST', data: {
       "chatQuery":prompt,
       "username": "Obo"
     }}).then(({
@@ -118,7 +118,7 @@ export async function main(eko, prompt: string) {
       result,
       message
     }) => {
-      if(data.length > 0){
+      if(data?.length > 0){
         sendMessage({
           thought: "好的！我收到了您的请求，需要帮助您预约一下会议室，当前浏览器页面显示CRM....用户可能也需要其他网页...我会上查询明天下午14:00的空会议室，并为您预约一个能容纳6人的会议室，同时需要在无锡和南京都进行预约。我将立即开始处理这个任务。",
           content: [{
@@ -133,20 +133,23 @@ export async function main(eko, prompt: string) {
             index: 3,
             title: "列出符合要求的会议室",
             content: "电401、电613、电12"
-          }]
+          }],
+          meeting: true
         })
         chrome.runtime.sendMessage({ type: "meeting_rooms", data });
       } else if(result === 'success') {
         sendMessage({
-          result: message
+          result: message,
+          meeting: true
         })
-        chrome.storage.local.set({ running: false });
       } else {
         sendMessage({
-          result: message
+          result: message,
+          meeting: true
         })
-        chrome.storage.local.set({ running: false });
       }
+    }).finally(() => {
+      chrome.runtime.sendMessage({ type: "stop" });
     });
 
     return;
