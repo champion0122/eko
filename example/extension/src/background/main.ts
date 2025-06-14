@@ -142,6 +142,7 @@ export async function main(eko, prompt: string) {
           result: message,
           meeting: true
         })
+        chrome.runtime.sendMessage({ type: "clean_meeting_rooms", data });
       } else {
         sendMessage({
           result: message,

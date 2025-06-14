@@ -53,6 +53,7 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
     const [expandThought, setExpandThought] = useState<{ [key: number]: boolean }>({});
     const [meetingRooms, setMeetingRooms] = useState<IMeetingRoom[]>([]);
     const [selectedRoom, setSelectedRoom] = useState<string[]>([]);
+    const [showAllRooms, setShowAllRooms] = useState(false);
 
     useEffect(() => {
         endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -66,6 +67,8 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
             console.log("message.type ", message.type);
             if (message.type === "meeting_rooms") {
                 setMeetingRooms(message.data);
+            } else if(message.type === "clean_meeting_rooms") {
+                setMeetingRooms([]);
             }
         };
 
@@ -92,7 +95,7 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
         });
     }, [messages, streamingAssistant]);
 
-    const renderMessage = (msg: Message, msgIdx: number) => {
+    const renderMessage = (msg: Message, msgIdx: number, isStream = false) => {
         if (msg.role === "user") {
             return <div className="max-w-[80%] rounded-2xl px-4 py-3 text-base whitespace-break-spaces break-words bg-white text-[#222] rounded-bl-md border border-[#ececec]">{msg.content}</div>
         }
@@ -126,7 +129,7 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
                     {msg.thought && isExpanded && (
                         <div className="border-l border-[#0816331F] text-[12px] pl-[12px] py=[4px] text-[#6B6B7B] leading-[1.7] whitespace-break-spaces break-words mb-2">{msg.thought}</div>
                     )}
-                    {msg.content?.map((step, idx) => (
+                    {msg.content.length > 1 && msg.content?.map((step, idx) => (
                         <div key={idx} className="mb-4 last:mb-0">
                             <div className="flex items-center gap-2 mb-1 leading-[26px]">
                                 <span className="inline-block px-2 py-0.5 bg-[#E6E8FF] rounded-[6px] text-[#424BA6] text-[14px] font-bold">Step {step.index}</span>
@@ -144,13 +147,11 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
                                 <span className="mr-2">💡</span>
                                 会议室可用列表
                             </div>
-                            {meetingRooms.map(room => (
+                            {(showAllRooms ? meetingRooms : meetingRooms.slice(0, 4)).map(room => (
                                 <div
                                     key={room.room_id}
-                                    className={`cursor-pointer bg-[rgba(171,181,206,0.22)] rounded-lg p-4 mb-3 flex items-center justify-between ${selectedRoom.includes(room.room_name) ? "!bg-white !border-[#9999FF] border" : ""}`}
+                                    className={`cursor-pointer bg-white/60 rounded-lg px-[12px] h-[34px] py-[7px] mb-3 flex items-center justify-between ${selectedRoom.includes(room.room_name) ? "!bg-white !border-[#9999FF] border" : ""}`}
                                     onClick={() => {
-                                        console.log("room.room_name ", room.room_name);
-                                        console.log("selectedRoom ", selectedRoom);
                                         if(selectedRoom.includes(room.room_name)){
                                             setSelectedRoom(prev => prev.filter(_room => _room !== room.room_name));
                                         } else {
@@ -158,10 +159,18 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
                                         }
                                     }}
                                 >
-                                     <div className="font-semibold text-base text-[#222]">{room.room_name}</div>
+                                     <div className="font-semibold text-[13px] leading-[34px] text-[#222]">{room.room_name}</div>
                                      <div className="text-sm text-[#6B6B7B] mt-1">可容纳{room.room_maxnum}人</div>
                                 </div>
                             ))}
+                            {meetingRooms.length > 4 && (
+                                <button
+                                    className="text-[#626FF6] text-xs mt-1 mb-2 px-2 py-1 rounded hover:bg-[#ececff] transition"
+                                    onClick={() => setShowAllRooms(v => !v)}
+                                >
+                                    {showAllRooms ? '收起' : `展开全部（${meetingRooms.length}）`}
+                                </button>
+                            )}
                             <Button
                                 type="primary"
                                 className="bg-[#626FF6] border-none rounded-[6px] text-white h-8 px-6 font-semibold text-sm shadow-none"
@@ -196,7 +205,7 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
             {/* 流式assistant消息 */}
             {streamingAssistant && (
                 <div className="flex justify-start mb-4 break-words">
-                    {renderMessage(streamingAssistant, messages.length)}
+                    {renderMessage(streamingAssistant, messages.length, true)}
                 </div>
             )}
             {/* 当没有streamingAssistant但有running状态时显示loading */}

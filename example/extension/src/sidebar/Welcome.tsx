@@ -9,11 +9,29 @@ function getGreeting() {
   return "晚上好";
 }
 
+const SUBJECTS = [
+  {
+    id: 1,
+    title: "📖 预约会议室",
+    desc: "根据近期纳斯达克的变化，制作报告"
+  },
+  {
+    id: 2,
+    title: "💡 生成报告",
+    desc: "线索转化和人力资源的人员分布，生成分析报告"
+  },
+  {
+    id: 3,
+    title: "🍃 资产检索",
+    desc: "线索转化和人力资源的人员分布，生成分析报告"
+  }
+]
+
 export const Welcome: React.FC<{ onSend: (prompt: string) => void }> = ({ onSend }) => {
   const greeting = getGreeting();
 
   return (
-    <div className="flex flex-col items-center w-full">
+    <div className="flex flex-col items-center flex-1 w-full h-full">
       {/* 顶部大标题 */}
       <div className="leading-[60px] text-center text-[32px] font-bold tracking-wider mt-[145px]">
         <div className="font-bold text-left text-[32px] leading-[60px]">{greeting}</div>
@@ -76,13 +94,14 @@ export const Welcome: React.FC<{ onSend: (prompt: string) => void }> = ({ onSend
           </div>
         </div>
       </div>
-      {/* 底部快捷icon区 */}
-      {/* <div className="absolute left-0 flex justify-between w-full px-10 bottom-8">
-        <img src="/assets/icon4.svg" alt="icon4" className="w-6 h-6 opacity-70" />
-        <img src="/assets/icon5.svg" alt="icon5" className="w-6 h-6 opacity-70" />
-        <img src="/assets/icon6.svg" alt="icon6" className="w-6 h-6 opacity-70" />
-        <img src="/assets/icon7.svg" alt="icon7" className="w-8 h-8 opacity-70" />
-      </div> */}
+      <div className="flex-1"></div>
+      <div className="flex gap-[8px] self-end justify-start mx-[20px] w-[calc(100%-40px)]">
+        {SUBJECTS.map(item => (
+          <div key={item.id} className="cursor-pointer flex w-[100px] h-[32px] p-[6px] justify-center items-center bg-[#ABB5CE38] rounded-[6px]">
+            <div className="text-[#0A1833] text-[13px] leading-[20px] font-[400]">{item.title}</div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

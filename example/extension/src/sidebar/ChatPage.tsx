@@ -85,11 +85,11 @@ export const ChatPage = () => {
     };
 
     return (
-        <div className="flex h-full min-h-[1024px] w-full">
-            <div className="relative flex-1 h-full min-h-[1024px] bg-gradient-to-b from-[#EEEDFE] to-[#E7F0FE] rounded-[20px] shadow-lg overflow-hidden flex flex-col items-center">
+        <div className="flex w-full h-full">
+            <div className="relative flex-1 h-full bg-gradient-to-b from-[#EEEDFE] to-[#E7F0FE] shadow-lg overflow-hidden flex flex-col items-center">
                 {messages.length === 0 && <Welcome onSend={handleSend} />}
                 {/* 消息列表 */}
-                <MessageList messages={messages} running={running} streamingAssistant={streamingAssistant} isMeeting={isMeeting} />
+                {messages.length > 0 && <MessageList messages={messages} running={running} streamingAssistant={streamingAssistant} isMeeting={isMeeting} />}
                 {/* 输入框 */}
                 <ChatInput
                     value={prompt}
