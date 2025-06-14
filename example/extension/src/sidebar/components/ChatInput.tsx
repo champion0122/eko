@@ -1,3 +1,4 @@
+import { Input } from "antd";
 import React from "react";
 
 interface ChatInputProps {
@@ -5,6 +6,7 @@ interface ChatInputProps {
   onChange: (v: string) => void;
   onSend: () => void;
   disabled?: boolean;
+  currentSubject: string;
 }
 
 const quickActions = [
@@ -25,7 +27,7 @@ const quickActions = [
   }
 ];
 
-export const ChatInput: React.FC<ChatInputProps> = ({ value, onChange, onSend, disabled }) => {
+export const ChatInput: React.FC<ChatInputProps> = ({ value, onChange, onSend, disabled, currentSubject }) => {
   // 处理快捷按钮点击
   const handleQuickAction = (prompt: string) => {
     // onChange(prompt);
@@ -35,8 +37,14 @@ export const ChatInput: React.FC<ChatInputProps> = ({ value, onChange, onSend, d
     <>
     <div className="transition-all bg-white rounded-[12px] border-[1px] border-[#DCE4FA] focus:border-[#8C8CFF] shadow-[0_6px_20px_0_rgba(171,181,206,0.2)] p-[8px] my-[16px] mx-[20px] w-[calc(100%-40px)]">
       {/* 输入区 */}
-      <textarea
-          className="w-full resize-none text-base outline-none bg-transparent text-[#0A1833] placeholder:text-[#A0AEC0] min-h-[44px] max-h-[120px] font-['PingFang SC','Inter','sans-serif'] whitespace-break-spaces break-words"
+      <div className="relative w-full">
+        {currentSubject && (
+          <div className="absolute top-0 left-0 z-10 bg-[#ABB5CE38] rounded-[6px] px-2 py-1 text-xs pointer-events-none">
+            {currentSubject}
+          </div>
+        )}
+        <textarea
+          className={`w-full resize-none text-base outline-none bg-transparent text-[#0A1833] placeholder:text-[#A0AEC0] min-h-[44px] max-h-[120px] font-['PingFang SC','Inter','sans-serif'] whitespace-break-spaces break-words ${currentSubject ? "pl-[100px]" : ""}`}
           rows={1}
           value={value}
           onChange={e => onChange(e.target.value)}
@@ -49,6 +57,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ value, onChange, onSend, d
             }
           }}
         />
+      </div>
       {/* 快捷操作按钮区（输入框下方） */}
       <div className="flex justify-between w-full pt-3">
         <div className="flex gap-[2px]">

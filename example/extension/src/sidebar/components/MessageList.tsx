@@ -129,7 +129,7 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
                     {msg.thought && isExpanded && (
                         <div className="border-l border-[#0816331F] text-[12px] pl-[12px] py=[4px] text-[#6B6B7B] leading-[1.7] whitespace-break-spaces break-words mb-2">{msg.thought}</div>
                     )}
-                    {msg.content.length > 1 && msg.content?.map((step, idx) => (
+                    {msg.content?.length > 1 && msg.content?.map((step, idx) => (
                         <div key={idx} className="mb-4 last:mb-0">
                             <div className="flex items-center gap-2 mb-1 leading-[26px]">
                                 <span className="inline-block px-2 py-0.5 bg-[#E6E8FF] rounded-[6px] text-[#424BA6] text-[14px] font-bold">Step {step.index}</span>
