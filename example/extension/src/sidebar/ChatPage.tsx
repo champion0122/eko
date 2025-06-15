@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Welcome } from "./Welcome";
 import { ChatInput } from "./components/ChatInput";
 import { IAssistantMessage, Message, MessageList } from "./components/MessageList";
-import { llmConfig } from "../constants/llmconfig.constant";
+import { llmConfig, claudeConfig } from "../constants/llmconfig.constant";
 
 const SUBJECTS = [
     {
@@ -40,7 +40,7 @@ export const ChatPage = () => {
     useEffect(() => {
         chrome.storage.sync.set(
             {
-                llmConfig,
+                llmConfig: llmConfig,
             },
             () => {
                 chrome.runtime.sendMessage({ type: "init" });
@@ -110,7 +110,7 @@ export const ChatPage = () => {
             <div className="relative flex-1 h-full bg-gradient-to-b from-[#EEEDFE] to-[#E7F0FE] shadow-lg overflow-hidden flex flex-col items-center">
                 {messages.length === 0 && <Welcome onSend={handleSend} />}
                 {/* 消息列表 */}
-                {messages.length > 0 && <MessageList messages={messages} running={running} streamingAssistant={streamingAssistant} isMeeting={isMeeting} />}
+                {messages.length > 0 && <MessageList messages={messages} setMessages={setMessages} running={running} streamingAssistant={streamingAssistant} isMeeting={isMeeting} />}
                 {!running && <div className="flex gap-[8px] self-end justify-start mx-[20px] w-[calc(100%-40px)]">
                     {SUBJECTS.map(item => (
                         <div key={item.id} className="cursor-pointer flex w-[100px] h-[32px] p-[6px] justify-center items-center bg-[#ABB5CE38] rounded-[6px] hover:bg-white" onClick={() => {

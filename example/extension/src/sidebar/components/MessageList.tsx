@@ -17,6 +17,8 @@ export interface IAssistantMessage {
     content: IStep[];
     thought?: string;
     result?: string;
+    error?: string;
+    meetingRooms?: IMeetingRoom[];
 }
 
 export type Message = IUserMessage | IAssistantMessage;
@@ -27,6 +29,7 @@ interface MessageListProps {
     streamLog?: string;
     streamingAssistant?: IAssistantMessage | null;
     isMeeting?: boolean;
+    setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
 }
 
 // Figma风格AI头像
@@ -47,17 +50,32 @@ const AILoading = () => (
     </div>
 );
 
-export const MessageList: React.FC<MessageListProps> = ({ messages, running, streamingAssistant, isMeeting }) => {
+export const MessageList: React.FC<MessageListProps> = ({ messages, running, streamingAssistant, isMeeting, setMessages }) => {
     const endRef = useRef<HTMLDivElement>(null);
     // 默认全部展开
     const [expandThought, setExpandThought] = useState<{ [key: number]: boolean }>({});
-    const [meetingRooms, setMeetingRooms] = useState<IMeetingRoom[]>([]);
     const [selectedRoom, setSelectedRoom] = useState<string[]>([]);
     const [showAllRooms, setShowAllRooms] = useState(false);
-
+    
     useEffect(() => {
         endRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, streamingAssistant]);
+
+    const setMeetingRooms = (meetingRooms: IMeetingRoom[]) => {
+        setMessages((prev) => {
+            const newMessages = [...prev];
+            (newMessages[newMessages.length - 1] as IAssistantMessage).meetingRooms = meetingRooms;
+            return newMessages;
+        });
+    }
+
+    const setError = (error: string) => {
+        setMessages((prev) => {
+            const newMessages = [...prev];
+            (newMessages[newMessages.length - 1] as IAssistantMessage).error = error;
+            return newMessages;
+        });
+    }
 
     useEffect(() => {
         const messageListener = (message: any) => {
@@ -69,6 +87,8 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
                 setMeetingRooms(message.data);
             } else if(message.type === "clean_meeting_rooms") {
                 setMeetingRooms([]);
+            } else if(message.type === "error"){
+                setError(message.data);
             }
         };
 
@@ -102,9 +122,9 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
         // assistant消息卡片
         const isExpanded = expandThought[msgIdx] || false;
         return (
-            <div className="flex items-start gap-3">
+            <div className="flex gap-3">
                 <AiAvatar />
-                <div className="text-base">
+                <div className="flex-1 text-base">
                     <div className="font-[400] text-[13px] text-[#081633] mb-2 flex items-center gap-2">
                         思考完成
                         {msg.thought && (
@@ -141,13 +161,13 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
                             <div className="text-[15px] text-[#6B6B7B] leading-[1.7] whitespace-break-spaces break-words">{step.content}</div>
                         </div>
                     ))}
-                    {meetingRooms.length > 0 && (
+                    {msg?.meetingRooms?.length > 0 && (
                         <div className="bg-white rounded-xl shadow-[0_6px_20px_0_rgba(171,181,206,0.24)] p-6 mt-4 mb-2">
                             <div className="font-bold text-lg text-[#222] mb-3 flex items-center">
                                 <span className="mr-2">💡</span>
                                 会议室可用列表
                             </div>
-                            {(showAllRooms ? meetingRooms : meetingRooms.slice(0, 4)).map(room => (
+                            {(showAllRooms ? msg?.meetingRooms : msg?.meetingRooms.slice(0, 4)).map(room => (
                                 <div
                                     key={room.room_id}
                                     className={`cursor-pointer bg-white/60 rounded-lg px-[12px] h-[34px] py-[7px] mb-3 flex items-center justify-between ${selectedRoom.includes(room.room_name) ? "!bg-white !border-[#9999FF] border" : ""}`}
@@ -163,12 +183,12 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
                                      <div className="text-sm text-[#6B6B7B] mt-1">可容纳{room.room_maxnum}人</div>
                                 </div>
                             ))}
-                            {meetingRooms.length > 4 && (
+                            {msg?.meetingRooms?.length > 4 && (
                                 <button
                                     className="text-[#626FF6] text-xs mt-1 mb-2 px-2 py-1 rounded hover:bg-[#ececff] transition"
                                     onClick={() => setShowAllRooms(v => !v)}
                                 >
-                                    {showAllRooms ? '收起' : `展开全部（${meetingRooms.length}）`}
+                                    {showAllRooms ? '收起' : `展开全部（${msg?.meetingRooms.length}）`}
                                 </button>
                             )}
                             <Button
@@ -186,6 +206,9 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
                     )}
                     {msg.result && (
                         <div className="text-[15px] text-[#6B6B7B] leading-[1.7] whitespace-break-spaces break-words">{msg.result}</div>
+                    )}
+                    {msg.error && (
+                        <div className="text-[15px] text-[#6B6B7B] leading-[1.7] whitespace-break-spaces break-words">{msg.error}</div>
                     )}
                 </div>
             </div>

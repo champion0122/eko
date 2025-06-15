@@ -7,8 +7,9 @@ import {
   ToolResult,
 } from "@eko-ai/eko/types";
 import { BrowserAgent } from "@eko-ai/eko-extension";
-import { meetingAgent } from "./meeting-agent/meeting_agent";
+import { meetingAgent } from "./agents/meeting_agent";
 import { request } from "../utils/request";
+import { webReportAgent } from "./agents/web_report_agent";
 
 export async function getLLMConfig(name: string = "llmConfig"): Promise<any> {
   let result = await chrome.storage.sync.get([name]);
@@ -42,17 +43,27 @@ export async function initEko(): Promise<Eko> {
   let callback: StreamCallback & HumanCallback = {
     onMessage: async (message: StreamCallbackMessage) => {
       try {
-      // if ((message as any)?.toolName === "meeting_room_query") return;
+      if ((message as any)?.toolName === "generate_visualization") {
+        // if((message as any).streamDone) {
+        //   window.open((message as any).text, '_blank');
+        // }
+        return;
+      }
       if (message.type == "workflow") {
-        sendMessage({
-          thought: message.workflow.thought,
-          content: (message.workflow.agents?.[0]?.nodes as WorkflowTextNode[])?.map((node, _i) => {
+        let index = 1;
+        const content = message.workflow.agents?.reduce((acc, agent) => {
+          return acc.concat((agent.nodes as WorkflowTextNode[]).map((node) => {
             return {
-              index: _i + 1,
+              index: index++,
               title: node.text,
               content: node.output
             }
-          })
+          }))
+        }, [])
+        
+        sendMessage({
+          thought: message.workflow.thought,
+          content: content
         }, !message.streamDone);
       } else if (message.type == "text") {
         sendMessage({
@@ -85,6 +96,7 @@ export async function initEko(): Promise<Eko> {
 
   let agents = [
     new BrowserAgent(),
+    webReportAgent,
     // meetingAgent,
   ];
   let eko = new Eko({ llms, agents, callback });
@@ -118,7 +130,7 @@ export async function main(eko, prompt: string) {
       result,
       message
     }) => {
-      if(data?.length > 0){
+      if(data?.length > 0 && !message.includes("预约")){
         sendMessage({
           thought: "好的！我收到了您的请求，需要帮助您预约一下会议室，当前浏览器页面显示CRM....用户可能也需要其他网页...我会上查询明天下午14:00的空会议室，并为您预约一个能容纳6人的会议室，同时需要在无锡和南京都进行预约。我将立即开始处理这个任务。",
           content: [{
@@ -148,6 +160,7 @@ export async function main(eko, prompt: string) {
           result: message,
           meeting: true
         })
+        chrome.runtime.sendMessage({ type: "error", data: message });
       }
     }).finally(() => {
       chrome.runtime.sendMessage({ type: "stop" });
@@ -162,7 +175,7 @@ export async function main(eko, prompt: string) {
       printLog(res.result, res.success ? "success" : "error");
     })
     .catch((error) => {
-      printLog(error, "error");
+      chrome.runtime.sendMessage({ type: "error", data: error });
     })
     .finally(() => {
       chrome.storage.local.set({ running: false });
@@ -179,7 +192,8 @@ export async function generateWorkFlow(eko: Eko, prompt: string) {
       // printLog(res.result, res.success ? "success" : "error");
     })
     .catch((error) => {
-      printLog(error, "error");
+      // printLog(error, "error");
+      chrome.runtime.sendMessage({ type: "error", data: error });
     })
     .finally(() => {
       chrome.storage.local.set({ running: false });
