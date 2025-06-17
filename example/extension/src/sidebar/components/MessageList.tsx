@@ -19,6 +19,10 @@ export interface IAssistantMessage {
     result?: string;
     error?: string;
     meetingRooms?: IMeetingRoom[];
+    html?: {
+        show: boolean;
+        url: string;
+    }
 }
 
 export type Message = IUserMessage | IAssistantMessage;
@@ -56,7 +60,10 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
     const [expandThought, setExpandThought] = useState<{ [key: number]: boolean }>({});
     const [selectedRoom, setSelectedRoom] = useState<string[]>([]);
     const [showAllRooms, setShowAllRooms] = useState(false);
-    
+    const [showMeetingPane, setShowMeetingPane] = useState(false);
+    const [showMeetingPaneTimeout, setShowMeetingPaneTimeout] = useState<boolean>(false);
+    const [booking, setBooking] = useState<boolean>(false);
+
     useEffect(() => {
         endRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, streamingAssistant]);
@@ -77,6 +84,18 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
         });
     }
 
+    const setMessageHtml = ({ show, url }: { show?: boolean; url?: string }) => {
+        setMessages((prev) => {
+            const newMessages = [...prev];
+            (newMessages[newMessages.length - 1] as IAssistantMessage).html = {
+                ...(newMessages[newMessages.length - 1] as IAssistantMessage).html,
+                show,
+                url
+            };
+            return newMessages;
+        });
+    }
+
     useEffect(() => {
         const messageListener = (message: any) => {
             if (!message) {
@@ -85,10 +104,19 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
             console.log("message.type ", message.type);
             if (message.type === "meeting_rooms") {
                 setMeetingRooms(message.data);
-            } else if(message.type === "clean_meeting_rooms") {
+            } else if (message.type === "clean_meeting_rooms") {
                 setMeetingRooms([]);
-            } else if(message.type === "error"){
+                setBooking(false);
+            } else if (message.type === "error") {
+                console.log("error", message);
                 setError(message.data);
+            } else if (message.type === "html_generating") {
+                chrome.storage.local.get(["report_html"], (result) => {
+                    setMessageHtml({ show: true, url: result.report_html });
+                });
+            } else if (message.type === "report_html") {
+                // console.log("report_html ", message.data);
+                setMessageHtml({ url: message.data })
             }
         };
 
@@ -126,24 +154,26 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
                 <AiAvatar />
                 <div className="flex-1 text-base">
                     <div className="font-[400] text-[13px] text-[#081633] mb-2 flex items-center gap-2">
-                        思考完成
                         {msg.thought && (
-                            <button
-                                className="ml-2 text-xs text-[#6D6AFF] bg-transparent border-none outline-none cursor-pointer px-2 py-1 rounded hover:bg-[#ececff] transition flex items-center"
-                                onClick={() => setExpandThought(prev => ({ ...prev, [msgIdx]: !isExpanded }))}
-                            >
-                                {isExpanded ? (
-                                    // 向上箭头
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                                        <path d="M19 15l-7-7-7 7" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                ) : (
-                                    // 向下箭头
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                                        <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                )}
-                            </button>
+                            <>
+                                思考完成
+                                <button
+                                    className="ml-2 text-xs text-[#6D6AFF] bg-transparent border-none outline-none cursor-pointer px-2 py-1 rounded hover:bg-[#ececff] transition flex items-center"
+                                    onClick={() => setExpandThought(prev => ({ ...prev, [msgIdx]: !isExpanded }))}
+                                >
+                                    {isExpanded ? (
+                                        // 向上箭头
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                            <path d="M19 15l-7-7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                    ) : (
+                                        // 向下箭头
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                            <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                    )}
+                                </button>
+                            </>
                         )}
                     </div>
                     {msg.thought && isExpanded && (
@@ -156,60 +186,116 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
                                 <span className="font-bold text-[#222] text-[14px]">{step.title}</span>
                             </div>
                             {
-                                
+
                             }
                             <div className="text-[15px] text-[#6B6B7B] leading-[1.7] whitespace-break-spaces break-words">{step.content}</div>
                         </div>
                     ))}
-                    {msg?.meetingRooms?.length > 0 && (
-                        <div className="bg-white rounded-xl shadow-[0_6px_20px_0_rgba(171,181,206,0.24)] p-6 mt-4 mb-2">
-                            <div className="font-bold text-lg text-[#222] mb-3 flex items-center">
-                                <span className="mr-2">💡</span>
-                                会议室可用列表
-                            </div>
-                            {(showAllRooms ? msg?.meetingRooms : msg?.meetingRooms.slice(0, 4)).map(room => (
-                                <div
-                                    key={room.room_id}
-                                    className={`cursor-pointer bg-white/60 rounded-lg px-[12px] h-[34px] py-[7px] mb-3 flex items-center justify-between ${selectedRoom.includes(room.room_name) ? "!bg-white !border-[#9999FF] border" : ""}`}
-                                    onClick={() => {
-                                        if(selectedRoom.includes(room.room_name)){
-                                            setSelectedRoom(prev => prev.filter(_room => _room !== room.room_name));
-                                        } else {
-                                            setSelectedRoom(prev => [...prev, room.room_name]);
-                                        }
-                                    }}
-                                >
-                                     <div className="font-semibold text-[13px] leading-[34px] text-[#222]">{room.room_name}</div>
-                                     <div className="text-sm text-[#6B6B7B] mt-1">可容纳{room.room_maxnum}人</div>
-                                </div>
-                            ))}
-                            {msg?.meetingRooms?.length > 4 && (
-                                <button
-                                    className="text-[#626FF6] text-xs mt-1 mb-2 px-2 py-1 rounded hover:bg-[#ececff] transition"
-                                    onClick={() => setShowAllRooms(v => !v)}
-                                >
-                                    {showAllRooms ? '收起' : `展开全部（${msg?.meetingRooms.length}）`}
-                                </button>
-                            )}
-                            <Button
-                                type="primary"
-                                className="bg-[#626FF6] border-none rounded-[6px] text-white h-8 px-6 font-semibold text-sm shadow-none"
-                                style={{ boxShadow: "none" }}
-                                onClick={() => {
-                                    chrome.runtime.sendMessage({ type: "run", prompt: `预约以下会议室: ${selectedRoom.map(room => `《${room}》`).join(",")}` });
-                                }}
-                                disabled={selectedRoom.length === 0}
-                            >
-                                预约
-                            </Button>
+                    {msg?.meetingRooms?.length > 0 && <div>
+                        <div className="flex items-center justify-between">
+                            <div className="text-[12px] font-[400] text-[#081633]">若需要对步骤修改，请直接输入</div>
+                            <Button className="bg-[#626FF6]" onClick={() => {
+                                setShowMeetingPaneTimeout(true);
+                                setTimeout(() => {
+                                    setShowMeetingPane(true);
+                                    setShowMeetingPaneTimeout(false);
+                                }, 5000)
+                            }} loading={showMeetingPaneTimeout} disabled={showMeetingPane}>执行接管</Button>
                         </div>
-                    )}
+                        {showMeetingPane && (
+                            <div className="bg-white rounded-xl shadow-[0_6px_20px_0_rgba(171,181,206,0.24)] p-6 mt-4 mb-2">
+                                <div className="font-bold text-lg text-[#222] mb-3 flex items-center">
+                                    <span className="mr-2">💡</span>
+                                    会议室可用列表
+                                </div>
+                                {(showAllRooms ? msg?.meetingRooms : msg?.meetingRooms.slice(0, 4)).map(room => (
+                                    <div
+                                        key={room.room_id}
+                                        className={`cursor-pointer bg-white/60 rounded-lg px-[12px] h-[34px] py-[7px] mb-3 flex items-center justify-between border ${selectedRoom.includes(room.room_name) ? "!bg-white !border-[#9999FF] border" : "border-[#08163326]"} ${!isMeeting ? "opacity-50" : ""}`}
+                                        onClick={() => {
+                                            if (!isMeeting) return;
+                                            if (selectedRoom.includes(room.room_name)) {
+                                                setSelectedRoom(prev => prev.filter(_room => _room !== room.room_name));
+                                            } else {
+                                                setSelectedRoom(prev => [...prev, room.room_name]);
+                                            }
+                                        }}
+                                    >
+                                        <div className="font-semibold text-[13px] leading-[34px] text-[#222]">{room.room_name}</div>
+                                        <div className="text-sm text-[#6B6B7B] mt-1">可容纳{room.room_maxnum}人</div>
+                                    </div>
+                                ))}
+                                {msg?.meetingRooms?.length > 4 && (
+                                    <button
+                                        className="text-[#626FF6] text-xs mt-1 mb-2 px-2 py-1 rounded hover:bg-[#ececff] transition"
+                                        onClick={() => setShowAllRooms(v => !v)}
+                                    >
+                                        {showAllRooms ? '收起' : `展开全部（${msg?.meetingRooms.length}）`}
+                                    </button>
+                                )}
+                                <Button
+                                    type="primary"
+                                    className="bg-[#626FF6] border-none rounded-[6px] text-white h-8 px-6 font-semibold text-sm shadow-none"
+                                    style={{ boxShadow: "none" }}
+                                    onClick={() => {
+                                        chrome.runtime.sendMessage({ type: "run", prompt: `预约${msg?.meetingRooms[0]?.date_range}的以下会议室: ${selectedRoom.map(room => `《${room}》`).join(",")}` });
+                                        setBooking(true);
+                                        // chrome.storage.local.get(["bookTime"], (result) => {
+                                        //     chrome.runtime.sendMessage({ type: "run", prompt: `预约${result.bookTime}的以下会议室: ${selectedRoom.map(room => `《${room}》`).join(",")}` });
+                                        //     setBooking(true);
+                                        // });
+                                    }}
+                                    loading={booking}
+                                    disabled={selectedRoom.length === 0 || !isMeeting}
+                                >
+                                    预约
+                                </Button>
+                            </div>
+                        )}
+                    </div>}
                     {msg.result && (
                         <div className="text-[15px] text-[#6B6B7B] leading-[1.7] whitespace-break-spaces break-words">{msg.result}</div>
                     )}
                     {msg.error && (
                         <div className="text-[15px] text-[#6B6B7B] leading-[1.7] whitespace-break-spaces break-words">{msg.error}</div>
                     )}
+                    {
+                        msg?.html?.show && (
+                            <div className="mt-[8px]">
+                                {!msg?.html?.url && <span>报告生成中<AILoading/></span>}
+                                {msg?.html?.url && (
+                                    <div className="mb-3">
+                                        <iframe 
+                                            src={`data:text/html;charset=utf-8,${encodeURIComponent(msg.html.url)}`}
+                                            className="w-full border border-[#ececec] rounded-lg"
+                                            style={{ height: '300px' }}
+                                            title="报告预览"
+                                            sandbox="allow-same-origin allow-scripts"
+                                        ></iframe>
+                                    </div>
+                                )}
+                                <Button
+                                    disabled={!msg?.html?.url}
+                                    onClick={() => {
+                                        const htmlContent = msg?.html?.url; // 你的html字符串
+                                        const blob = new Blob([htmlContent], { type: "text/html" });
+                                        const url = URL.createObjectURL(blob);
+
+                                        const a = document.createElement("a");
+                                        a.href = url;
+                                        a.download = "report.html"; // 下载的文件名
+                                        document.body.appendChild(a);
+                                        a.click();
+                                        document.body.removeChild(a);
+                                        URL.revokeObjectURL(url);
+                                    }}
+                                >
+                                    下载HTML
+                                </Button>
+                            </div>
+                        )
+                    }
+                    {/* {isStream && <AILoading />} */}
                 </div>
             </div>
         );
@@ -232,7 +318,7 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, running, str
                 </div>
             )}
             {/* 当没有streamingAssistant但有running状态时显示loading */}
-            {!streamingAssistant && running && !isMeeting && (
+            {!streamingAssistant && running && (
                 <div className="flex justify-start mb-4">
                     <div className="flex items-start gap-3">
                         <AiAvatar />

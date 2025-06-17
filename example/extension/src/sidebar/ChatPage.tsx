@@ -95,14 +95,14 @@ export const ChatPage = () => {
         };
     }, [streamingAssistant]);
 
-    const handleSend = () => {
+    const handleSend = (prompt: string, condition?: string) => {
         if (!prompt.trim()) return;
         setMessages([...messages, { role: "user", content: prompt }]);
         setPrompt("");
         setRunning(true);
         setCurrentSubject('');
         chrome.storage.local.set({ running: true, prompt });
-        chrome.runtime.sendMessage({ type: "run", prompt: prompt.trim() });
+        chrome.runtime.sendMessage({ type: "run", prompt: condition ? condition + " " + prompt.trim() : prompt.trim() });
     };
 
     return (
@@ -128,6 +128,7 @@ export const ChatPage = () => {
                     onSend={handleSend}
                     disabled={running}
                     currentSubject={currentSubject}
+                    setCurrentSubject={setCurrentSubject}
                 />
             </div>
             {/* <HistorySidebar /> */}

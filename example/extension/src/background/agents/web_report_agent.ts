@@ -3,34 +3,35 @@ import { Tool, ToolResult } from "@eko-ai/eko/types";
 
 // 定义agent工具
 let tools: Tool[] = [
+  // # 🤖 Role
+// - **You are**: 一位具备网页文本解析、信息提取、数据建模与可视化能力的数据分析专家。
+// - **Skills**:
+//   - 🧠 非结构化文本分析与信息抽取
+//   - 🧹 文本结构化处理（将自然语言或网页文本转为表格/结构化数据）
+//   - 📊 数据统计与可视化（matplotlib、plotly 或 seaborn）
+//   - 🧾 自动生成交互式 HTML 数据报告
+//   - ✍️ 总结关键信息、提炼洞察
+
+// # 💬 Basic Output Requirements:
+// - 从变量stock_data或者输入的网页提取文本中自动识别有价值的数据（如：价格列表、评分、标题-数值对、表格内容、时间序列等）
+// - 对提取出的信息进行结构化（例如转化为 JSON 或 dataframe）
+// - 统计基本指标（如平均值、最大最小值、频率分布等）
+// - 自动选择合适的可视化形式进行展示
+// - 生成完整的 HTML 格式数据报告，报告包括：
+//   - 报告标题
+//   - 数据提取和结构化说明
+//   - 可视化图表（可以使用cdn的方式引入chartjs三方库，cdn地址为https://cdn.jsdelivr.net/npm/chart.js）
+//   - 分析总结（用简洁自然语言总结洞察）
+// - 所有输出内容为简体中文
+// - HTML 报告代码结构整洁，具备直接预览的能力（可粘贴至 .html 文件查看）
+
+// # 📝 Prompt 内容
+
+// 请根据以下网页提取文本内容，自动完成数据抽取、分析与可视化，并最终生成一份结构清晰、可直接预览的 HTML 报告。
   {
     name: "generate_visualization",
     description: `
-# 🤖 Role
-- **You are**: 一位具备网页文本解析、信息提取、数据建模与可视化能力的数据分析专家。
-- **Skills**:
-  - 🧠 非结构化文本分析与信息抽取
-  - 🧹 文本结构化处理（将自然语言或网页文本转为表格/结构化数据）
-  - 📊 数据统计与可视化（matplotlib、plotly 或 seaborn）
-  - 🧾 自动生成交互式 HTML 数据报告
-  - ✍️ 总结关键信息、提炼洞察
-
-# 💬 Basic Output Requirements:
-- 从变量stock_data或者输入的网页提取文本中自动识别有价值的数据（如：价格列表、评分、标题-数值对、表格内容、时间序列等）
-- 对提取出的信息进行结构化（例如转化为 JSON 或 dataframe）
-- 统计基本指标（如平均值、最大最小值、频率分布等）
-- 自动选择合适的可视化形式进行展示
-- 生成完整的 HTML 格式数据报告，报告包括：
-  - 报告标题
-  - 数据提取和结构化说明
-  - 可视化图表（可以使用cdn的方式引入chartjs三方库，cdn地址为https://cdn.jsdelivr.net/npm/chart.js）
-  - 分析总结（用简洁自然语言总结洞察）
-- 所有输出内容为简体中文
-- HTML 报告代码结构整洁，具备直接预览的能力（可粘贴至 .html 文件查看）
-
-# 📝 Prompt 内容
-
-请根据以下网页提取文本内容，自动完成数据抽取、分析与可视化，并最终生成一份结构清晰、可直接预览的 HTML 报告。
+你什么具体的事情都不用做，但是生成报告的流程最后一步必须经过你
 `,
     parameters: {
       type: "object",
@@ -50,7 +51,7 @@ let tools: Tool[] = [
       args: Record<string, unknown>,
       agentContext: AgentContext
     ): Promise<ToolResult> => {
-      const url = 'data:text/html;charset=utf-8,' + encodeURIComponent(args.result as string);
+      // const url = 'data:text/html;charset=utf-8,' + encodeURIComponent(args.result as string);
       // window.open(url, '_blank');
 
       // const analysisData = args.analysisData as any;
@@ -58,11 +59,11 @@ let tools: Tool[] = [
 
       // // 生成图表配置
       // const visualizations = generateChartConfigs(analysisData, chartOptions);
-
+      chrome.runtime.sendMessage({ type: "html_generating" });
       return {
         content: [{ 
           type: "text", 
-          text: url
+          text: ""
         }],
       };
     },
@@ -292,6 +293,8 @@ webReportAgent = new Agent({
   name: "WEB_REPORT",
   description: `网页数据分析和HTML可视化报告生成Agent。
   
+关键词需要明确需要《可视化报告》 不然不使用该Agent
+
 功能包括：
 1. 智能提取网页数据（表格、数字、图表等）
 2. AI分析数据并生成洞察
@@ -302,11 +305,9 @@ webReportAgent = new Agent({
 - 纳斯达克等金融页面的数据分析
 - 电商网站的价格和评价分析  
 - 新闻网站的热度和互动分析
-- 任何包含结构化数据的网页
 
-将提取出的数据存到一个变量名为stock_data的变量中，由generate_visualization工具使用
-
-
+将提取出的数据存到一个变量名为stock_data的变量中，由generate_visualization工具使用,实际上不需要你来生成html
+你什么都不用输出!
 `,
   tools: tools,
 }); 

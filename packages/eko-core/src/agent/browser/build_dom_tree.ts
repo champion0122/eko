@@ -388,7 +388,8 @@ export function run_build_dom_tree(selector?: string) {
         'bi-basic-button',
         'fr-widget-click',
         'fr-checkbox-checkoff',
-        'fr-trigger-texteditor'
+        'fr-trigger-texteditor',
+        'bi-input'
       ];
 
       const tagName = element.tagName.toLowerCase();

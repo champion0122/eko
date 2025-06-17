@@ -15,7 +15,7 @@ function buildQuery(params: Record<string, any> = {}) {
 }
 
 export async function request<T = any>(url: string, options: RequestOptions = {}): Promise<T> {
-  let { method = 'GET', headers = {}, data, params, timeout = 15000 } = options;
+  let { method = 'GET', headers = {}, data, params, timeout = 600000 } = options;
   let fetchUrl = url;
   if (params && Object.keys(params).length > 0) {
     fetchUrl += (url.includes('?') ? '&' : '?') + buildQuery(params);

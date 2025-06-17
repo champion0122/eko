@@ -9,7 +9,7 @@ function getGreeting() {
   return "晚上好";
 }
 
-export const Welcome: React.FC<{ onSend: (prompt: string) => void }> = ({ onSend }) => {
+export const Welcome: React.FC<{ onSend: (prompt: string, condition?: string) => void }> = ({ onSend }) => {
   const greeting = getGreeting();
 
   return (
@@ -46,33 +46,33 @@ export const Welcome: React.FC<{ onSend: (prompt: string) => void }> = ({ onSend
         <div className="w-full flex flex-col gap-[12px] py-[20px] px-[18px]">
           <div
           className="bg-[#FFFFFF] leading-[24px] rounded-[6px] px-4 py-2 text-[#0A1833] text-[12px] font-normal gap-2 hover:bg-[rgba(171,181,206,0.32)] transition"
-          onClick={() => { }}
+          onClick={() => { onSend("实际给到销售线索是多少？") }}
           >
-            <span className="text-[#081633] text-[16px] font-bold">📖 生成报告</span>
+            <span className="text-[#081633] text-[16px] font-bold">📖 资产检索</span>
             <br/>
-            <span className="text-[#08163373]">
-              根据近期纳斯达克的变化，制作报告
-            </span>
+            <div className="text-[#08163373] text-ellipsis text-nowrap overflow-hidden">
+            实际给到销售线索是多少？
+            </div>
           </div>
           <div
             className=" bg-[#FFFFFF] rounded-[6px] px-4 py-2 text-[#0A1833] text-[12px] font-normal gap-2 hover:bg-[rgba(171,181,206,0.32)] transition"
-            onClick={() => { }}
-          >
-            <span className="text-[#081633] text-[16px] font-bold">💡 生成报告</span>
-            <br/>
-            <span className="text-[#08163373]">
-              线索转化和人力资源的人员分布，生成分析报告
-            </span>
-          </div>
-          <div
-            className=" bg-[#FFFFFF] rounded-[6px] px-4 py-2 text-[#0A1833] text-[12px] font-normal gap-2 hover:bg-[rgba(171,181,206,0.32)] transition"
-            onClick={() => { }}
+            onClick={() => { onSend("在雅虎财经上收集纳斯达克的最新数据，包括主要股票的价格变化、市值、交易量，分析数据并生成可视化报告") }}
           >
             <span className="text-[#081633] text-[16px] font-bold">🍃 生成报告</span>
             <br/>
-            <span className="text-[#08163373]">
-              线索转化和人力资源的人员分布，生成分析报告
-            </span>
+            <div className="text-[#08163373] text-ellipsis text-nowrap overflow-hidden">
+            在雅虎财经上收集纳斯达克的最新数据，包括主要股票的价格变化、市值、交易量，分析数据并生成可视化报告
+            </div>
+          </div>
+          <div
+            className=" bg-[#FFFFFF] rounded-[6px] px-4 py-2 text-[#0A1833] text-[12px] font-normal gap-2 hover:bg-[rgba(171,181,206,0.32)] transition"
+            onClick={() => { onSend("帮我查询无锡明天下午14点-15点能容纳6个人的空会议室") }}
+          >
+            <span className="text-[#081633] text-[16px] font-bold">💡 预约会议室</span>
+            <br/>
+            <div className="text-[#08163373] text-ellipsis text-nowrap overflow-hidden">
+            帮我查询无锡明天下午14点-15点能容纳6个人的空会议室
+            </div>
           </div>
         </div>
       </div>
