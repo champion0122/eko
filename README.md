@@ -9,6 +9,9 @@
   <small>Eko - Build Production-ready Agentic Workflow with Natural Language</small>
 </h1>
 
+使用步骤：
+1.安装eko的依赖，然后pnpm run build一下
+2.进到example/extension，打包出插件或者直接启动dev命令就🀄️（目前用的公司的azure gpt模型，可以自己改模型）
 
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://example.com/build-status) [![Version](https://img.shields.io/github/package-json/v/FellouAI/eko?color=yellow)](https://eko.fellou.ai/docs/release/versions/)
